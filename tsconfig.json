@@ -1,6 +1,13 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
-  }
+    "strict": true,
+    "jsx": "react-native",                  // 👈 interpreta correctamente el JSX
+    "types": ["react", "react-native"],     // 👈 incluye definiciones necesarias
+    "baseUrl": ".",                         // 👈 permite usar alias como @/src si configuras path mapping
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src", "App.tsx", "index.ts"]
 }

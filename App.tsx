@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './src/modules/users/screens/LoginScreen';
 import UserListScreen from './src/modules/users/screens/UserList';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
-
+import LogoutScreen from './src/modules/users/screens/LogoutScreen';
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -14,6 +14,8 @@ function DrawerRoutes() {
   return (
     <Drawer.Navigator screenOptions={{ headerShown: false }}>
       <Drawer.Screen name="Usuarios" component={UserListScreen} />
+      <Drawer.Screen name="Cerrar Sesión" component={LogoutScreen} />
+
       {/* Aquí puedes agregar más pantallas */}
     </Drawer.Navigator>
   );

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { getUsers, createUser, updateUser, deleteUser } from '../services/userService';
+import { getUsers, createUser, updateUser, deleteUser } from '../services/authService';
 import { User } from '../types';
 import UserModal from '../UserModal';
 import DashboardLayout from '../../layouts/template';
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: 'bold', marginTop: 46 },
   userItem: {
     padding: 12,
-    backgroundColor: '#eee',
+    backgroundColor: '#eeeeee',
     borderRadius: 8,
     marginBottom: 10,
   },

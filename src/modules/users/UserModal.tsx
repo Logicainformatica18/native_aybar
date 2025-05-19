@@ -84,13 +84,13 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value) {
-        if (key === 'photo' && typeof value === 'string' && value.startsWith('file')) {
+        if (key === 'photo' && typeof value === 'string' && value.startsWith('file://')) {
           data.append('photo', {
             uri: value,
             name: 'photo.jpg',
             type: 'image/jpeg',
           } as any);
-        } else {
+        } else if (key !== 'photo') {
           data.append(key, value);
         }
       }
@@ -105,22 +105,22 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>{userToEdit ? 'Editar Usuario' : 'Nuevo Usuario'}</Text>
 
-        <TextInput style={styles.input} placeholder="DNI" value={formData.dni} onChangeText={(text) => handleChange('dni', text)} />
-        <TextInput style={styles.input} placeholder="Nombres" value={formData.names} onChangeText={(text) => handleChange('names', text)} />
-        <TextInput style={styles.input} placeholder="Apellido Paterno" value={formData.firstname} onChangeText={(text) => handleChange('firstname', text)} />
-        <TextInput style={styles.input} placeholder="Apellido Materno" value={formData.lastname} onChangeText={(text) => handleChange('lastname', text)} />
-        <TextInput style={styles.input} placeholder="Correo" value={formData.email} onChangeText={(text) => handleChange('email', text)} keyboardType="email-address" />
-        <TextInput style={styles.input} placeholder="Celular" value={formData.cellphone} onChangeText={(text) => handleChange('cellphone', text)} keyboardType="phone-pad" />
+        <TextInput style={styles.inputSmall} placeholder="DNI" value={formData.dni} onChangeText={(text) => handleChange('dni', text)} />
+        <TextInput style={styles.inputSmall} placeholder="Nombres" value={formData.names} onChangeText={(text) => handleChange('names', text)} />
+        <TextInput style={styles.inputSmall} placeholder="Apellido Paterno" value={formData.firstname} onChangeText={(text) => handleChange('firstname', text)} />
+        <TextInput style={styles.inputSmall} placeholder="Apellido Materno" value={formData.lastname} onChangeText={(text) => handleChange('lastname', text)} />
+        <TextInput style={styles.inputSmall} placeholder="Correo" value={formData.email} onChangeText={(text) => handleChange('email', text)} keyboardType="email-address" />
+        <TextInput style={styles.inputSmall} placeholder="Celular" value={formData.cellphone} onChangeText={(text) => handleChange('cellphone', text)} keyboardType="phone-pad" />
 
         <Text style={styles.label}>Sexo</Text>
-        <Picker selectedValue={formData.sex} onValueChange={(value) => handleChange('sex', value)} style={styles.input}>
+        <Picker selectedValue={formData.sex} onValueChange={(value) => handleChange('sex', value)} style={styles.inputSmall}>
           <Picker.Item label="Seleccionar..." value="" />
           <Picker.Item label="Masculino" value="M" />
           <Picker.Item label="Femenino" value="F" />
         </Picker>
 
         <Text style={styles.label}>Fecha de nacimiento</Text>
-        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={[styles.input, { justifyContent: 'center' }]}>
+        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={[styles.inputSmall, { justifyContent: 'center' }]}>
           <Text>{formData.datebirth ? new Date(formData.datebirth).toLocaleDateString() : 'Seleccionar fecha'}</Text>
         </TouchableOpacity>
         {showDatePicker && (
@@ -137,7 +137,7 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
           />
         )}
 
-        <TextInput style={styles.input} placeholder="Contraseña" secureTextEntry value={formData.password} onChangeText={(text) => handleChange('password', text)} />
+        <TextInput style={styles.inputSmall} placeholder="Contraseña" secureTextEntry value={formData.password} onChangeText={(text) => handleChange('password', text)} />
 
         <Text style={styles.label}>Rol:</Text>
         {availableRoles.map((role) => (
@@ -173,15 +173,15 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
 
 const styles = StyleSheet.create({
   container: { padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 16 },
-  input: { borderWidth: 1, borderColor: '#ccc', marginBottom: 12, borderRadius: 8, padding: 10 },
-  label: { marginTop: 10, fontWeight: 'bold' },
-  roleButton: { padding: 10, backgroundColor: '#eee', borderRadius: 6, marginVertical: 4 },
+  title: { fontSize: 20, fontWeight: 'bold', marginBottom: 12 },
+  inputSmall: { fontSize: 13, borderWidth: 1, borderColor: '#ccc', marginBottom: 8, borderRadius: 6, padding: 8 },
+  label: { marginTop: 10, fontWeight: '600', fontSize: 13 },
+  roleButton: { padding: 8, backgroundColor: '#eee', borderRadius: 6, marginVertical: 3 },
   roleSelected: { backgroundColor: '#cce5ff' },
-  photoButton: { backgroundColor: '#777', padding: 10, borderRadius: 8, marginBottom: 20 },
-  actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
-  buttonCancel: { padding: 12, backgroundColor: '#ccc', borderRadius: 8, flex: 1, marginRight: 5 },
-  buttonSave: { padding: 12, backgroundColor: '#4CAF50', borderRadius: 8, flex: 1, marginLeft: 5 },
-  buttonText: { color: '#fff', textAlign: 'center' },
-  image: { width: 100, height: 100, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#ccc', alignSelf: 'center' },
+  photoButton: { backgroundColor: '#777', padding: 8, borderRadius: 8, marginBottom: 16 },
+  actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
+  buttonCancel: { padding: 10, backgroundColor: '#ccc', borderRadius: 8, flex: 1, marginRight: 5 },
+  buttonSave: { padding: 10, backgroundColor: '#4CAF50', borderRadius: 8, flex: 1, marginLeft: 5 },
+  buttonText: { color: '#fff', textAlign: 'center', fontSize: 13 },
+  image: { width: 80, height: 80, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#ccc', alignSelf: 'center' },
 });

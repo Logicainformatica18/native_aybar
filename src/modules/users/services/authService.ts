@@ -1,18 +1,43 @@
 import axios from '@/config/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export async function login(email: string, password: string) {
-  const response = await axios.post('/login', { email, password });
-
-  const { token, user } = response.data;
-
-  // Guarda token en AsyncStorage
-  await AsyncStorage.setItem('authToken', token);
-  await AsyncStorage.setItem('user', JSON.stringify(user));
-
-  return user;
+ import { User } from '../types';
+// Helper para agregar token a headers
+async function getAuthHeaders() {
+  const token = await AsyncStorage.getItem('authToken');
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'multipart/form-data',
+  };
 }
 
+export async function getUsers(): Promise<User[]> {
+  const headers = await getAuthHeaders();
+  const response = await axios.get('/users', { headers });
+  return response.data.users.data; // si estás usando paginación
+}
+
+export async function createUser(formData: FormData) {
+  const headers = await getAuthHeaders();
+  const response = await axios.post('/users', formData, { headers });
+  return response.data.user;
+}
+
+export async function updateUser(id: number, formData: FormData): Promise<User> {
+  const token = await AsyncStorage.getItem('authToken');
+  const response = await axios.post(`/users/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data.user;
+}
+
+
+export async function deleteUser(id: number) {
+  const headers = await getAuthHeaders();
+  await axios.delete(`/users/${id}`, { headers });
+}
 export async function logout() {
   const token = await AsyncStorage.getItem('authToken');
   if (!token) return;
@@ -25,18 +50,4 @@ export async function logout() {
 
   await AsyncStorage.removeItem('authToken');
   await AsyncStorage.removeItem('user');
-}
-
-export async function getCurrentUser() {
-  const token = await AsyncStorage.getItem('authToken');
-
-  if (!token) throw new Error('No hay token');
-
-  const response = await axios.get('/me', {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  return response.data;
 }

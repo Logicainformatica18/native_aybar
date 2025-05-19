@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from './src/modules/users/screens/LoginScreen';
@@ -7,18 +8,28 @@ import UserListScreen from './src/modules/users/screens/UserList';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
 const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
+
+function DrawerRoutes() {
+  return (
+    <Drawer.Navigator screenOptions={{ headerShown: false }}>
+      <Drawer.Screen name="Usuarios" component={UserListScreen} />
+      {/* Aquí puedes agregar más pantallas */}
+    </Drawer.Navigator>
+  );
+}
 
 function AppNavigator() {
   const { token, loading } = useAuth();
 
-  if (loading) return null; // o un spinner
+  if (loading) return null; // o spinner de carga
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!token ? (
         <Stack.Screen name="Login" component={LoginScreen} />
       ) : (
-        <Stack.Screen name="UserList" component={UserListScreen} />
+        <Stack.Screen name="Main" component={DrawerRoutes} />
       )}
     </Stack.Navigator>
   );

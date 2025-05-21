@@ -13,7 +13,7 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import HourglassLoader from 'src/modules/layouts/components/HourglassLoader'; // Ajusta la ruta si es necesario
-import { BASE_IMAGE_URL } from '@/config/constants';
+import { BASE_IMAGE_URL_USER } from '@/config/constants';
 
 interface Props {
   open: boolean;
@@ -118,7 +118,7 @@ const handleSubmit = async () => {
   const handleImagePress = () => {
     const uri = formData.photo?.startsWith('file')
       ? formData.photo
-      : BASE_IMAGE_URL + formData.photo;
+      : BASE_IMAGE_URL_USER + formData.photo;
     setPreviewUri(uri);
     setImagePreviewVisible(true);
   };
@@ -174,7 +174,7 @@ const handleSubmit = async () => {
           <TouchableOpacity onPress={handleImagePress}>
             <Image
               source={{
-                uri: formData.photo.startsWith('file') ? formData.photo : BASE_IMAGE_URL + formData.photo,
+                uri: formData.photo.startsWith('file') ? formData.photo : BASE_IMAGE_URL_USER + formData.photo,
               }}
               style={styles.image}
             />

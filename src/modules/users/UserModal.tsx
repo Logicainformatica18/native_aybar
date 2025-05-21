@@ -38,7 +38,10 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const baseUrl = 'http://192.168.16.187:8000/imageusers/';
+  const baseUrl = 'http://192.168.1.42:8000/imageusers/';
+
+  const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
 
   useEffect(() => {
     if (userToEdit) {
@@ -100,6 +103,14 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
     onClose();
   };
 
+  const handleImagePress = () => {
+    const uri = formData.photo?.startsWith('file')
+      ? formData.photo
+      : baseUrl + formData.photo;
+    setPreviewUri(uri);
+    setImagePreviewVisible(true);
+  };
+
   return (
     <Modal visible={open} animationType="slide" onRequestClose={onClose}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -147,11 +158,15 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
         ))}
 
         <Text style={styles.label}>Foto:</Text>
-        {formData.photo && typeof formData.photo === 'string' && !formData.photo.startsWith('file') && (
-          <Image source={{ uri: baseUrl + formData.photo }} style={styles.image} />
-        )}
-        {formData.photo && typeof formData.photo === 'string' && formData.photo.startsWith('file') && (
-          <Image source={{ uri: formData.photo }} style={styles.image} />
+        {formData.photo && (
+          <TouchableOpacity onPress={handleImagePress}>
+            <Image
+              source={{
+                uri: formData.photo.startsWith('file') ? formData.photo : baseUrl + formData.photo,
+              }}
+              style={styles.image}
+            />
+          </TouchableOpacity>
         )}
 
         <TouchableOpacity style={styles.photoButton} onPress={pickImage}>
@@ -167,6 +182,15 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Modal para vista previa de imagen */}
+      <Modal visible={imagePreviewVisible} transparent onRequestClose={() => setImagePreviewVisible(false)}>
+        <View style={styles.previewOverlay}>
+          <TouchableOpacity style={styles.previewBackground} onPress={() => setImagePreviewVisible(false)}>
+            {previewUri && <Image source={{ uri: previewUri }} style={styles.previewImage} />}
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </Modal>
   );
 }
@@ -184,4 +208,24 @@ const styles = StyleSheet.create({
   buttonSave: { padding: 10, backgroundColor: '#4CAF50', borderRadius: 8, flex: 1, marginLeft: 5 },
   buttonText: { color: '#fff', textAlign: 'center', fontSize: 13 },
   image: { width: 80, height: 80, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#ccc', alignSelf: 'center' },
+
+  // Estilos del modal de vista previa
+  previewOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: '90%',
+    height: '70%',
+    resizeMode: 'contain',
+    borderRadius: 10,
+  },
 });

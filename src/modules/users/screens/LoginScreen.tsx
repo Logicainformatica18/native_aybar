@@ -20,15 +20,33 @@ export default function LoginScreen() {
   const { login } = useAuth();
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Campos requeridos', 'Completa ambos campos para iniciar sesión');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await loginService(email, password);
-      await login(res.user, res.token); // guarda en contexto y AsyncStorage
+      await login(res.user, res.token);
+
+      // Limpia el formulario si todo va bien
+      setEmail('');
+      setPassword('');
     } catch (err: any) {
-      Alert.alert(
-        'Error',
-        err?.response?.data?.message || 'No se pudo iniciar sesión'
-      );
+      console.log('🧨 ERROR LOGIN:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+      console.log('🔍 err.message:', err?.message);
+
+      let message = 'No se pudo iniciar sesión';
+      if (err?.response?.data?.message) {
+        message = err.response.data.message;
+      } else if (err?.message === 'Network Error') {
+        message = 'Sin conexión al servidor';
+      } else if (err?.message) {
+        message = err.message;
+      }
+
+      Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }

@@ -1,35 +1,50 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Define tu tipo de usuario según lo que recibes del backend
+interface User {
+  id: number;
+  email: string;
+  firstname?: string;
+  lastname?: string;
+  names?: string;
+  // agrega más campos si es necesario
+}
+
 interface AuthContextType {
-  user: any;
+  user: User | null;
   token: string | null;
   loading: boolean;
-  login: (user: any, token: string) => Promise<void>;
+  login: (user: User, token: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadSession = async () => {
-      const storedToken = await AsyncStorage.getItem('authToken');
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+      try {
+        const storedToken = await AsyncStorage.getItem('authToken');
+        const storedUser = await AsyncStorage.getItem('user');
+
+        if (storedToken) setToken(storedToken);
+        if (storedUser) setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.warn('Error al cargar sesión:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     loadSession();
   }, []);
 
-  const login = async (userData: any, authToken: string) => {
+  const login = async (userData: User, authToken: string) => {
     await AsyncStorage.setItem('authToken', authToken);
     await AsyncStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);

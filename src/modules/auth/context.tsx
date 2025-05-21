@@ -1,45 +1,69 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import React, { createContext, useContext, useEffect, useState } from 'react';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface AuthContextProps {
-  token: string | null;
-  loading: boolean;
-  setToken: (token: string | null) => void;
-}
+// interface User {
+//   id: number;
+//   email: string;
+//   firstname?: string;
+//   lastname?: string;
+//   names?: string;
+//   // puedes agregar más campos según tu modelo
+// }
 
-const AuthContext = createContext<AuthContextProps>({
-  token: null,
-  loading: true,
-  setToken: () => {},
-});
+// interface AuthContextProps {
+//   user: User | null;
+//   token: string | null;
+//   loading: boolean;
+//   login: (user: User, token: string) => Promise<void>;
+//   logout: () => Promise<void>;
+// }
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setTokenState] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+// const AuthContext = createContext<AuthContextProps>({
+//   user: null,
+//   token: null,
+//   loading: true,
+//   login: async () => {},
+//   logout: async () => {},
+// });
 
-  useEffect(() => {
-    const loadToken = async () => {
-      const storedToken = await AsyncStorage.getItem('authToken');
-      setTokenState(storedToken);
-      setLoading(false);
-    };
-    loadToken();
-  }, []);
+// export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+//   const [token, setToken] = useState<string | null>(null);
+//   const [user, setUser] = useState<User | null>(null);
+//   const [loading, setLoading] = useState(true);
 
-  const setToken = async (newToken: string | null) => {
-    if (newToken) {
-      await AsyncStorage.setItem('authToken', newToken);
-    } else {
-      await AsyncStorage.removeItem('authToken');
-    }
-    setTokenState(newToken);
-  };
+//   useEffect(() => {
+//     const loadSession = async () => {
+//       const storedToken = await AsyncStorage.getItem('authToken');
+//       const storedUser = await AsyncStorage.getItem('user');
 
-  return (
-    <AuthContext.Provider value={{ token, loading, setToken }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+//       if (storedToken) setToken(storedToken);
+//       if (storedUser) setUser(JSON.parse(storedUser));
 
-export const useAuth = () => useContext(AuthContext);
+//       setLoading(false);
+//     };
+
+//     loadSession();
+//   }, []);
+
+//   const login = async (userData: User, authToken: string) => {
+//     await AsyncStorage.setItem('authToken', authToken);
+//     await AsyncStorage.setItem('user', JSON.stringify(userData));
+//     setToken(authToken);
+//     setUser(userData);
+//   };
+
+//   const logout = async () => {
+//     await AsyncStorage.removeItem('authToken');
+//     await AsyncStorage.removeItem('user');
+//     setToken(null);
+//     setUser(null);
+//   };
+
+//   return (
+//     <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => useContext(AuthContext);

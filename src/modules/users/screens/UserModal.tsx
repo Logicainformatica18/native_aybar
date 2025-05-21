@@ -12,6 +12,8 @@ import {
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
+import HourglassLoader from 'src/modules/layouts/components/HourglassLoader'; // Ajusta la ruta si es necesario
+import { BASE_IMAGE_URL } from '@/config/constants';
 
 interface Props {
   open: boolean;
@@ -38,10 +40,12 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const baseUrl = 'http://192.168.1.42:8000/imageusers/';
+ 
 
   const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
   const [previewUri, setPreviewUri] = useState<string | null>(null);
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (userToEdit) {
@@ -83,30 +87,38 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
     }
   };
 
-  const handleSubmit = () => {
-    const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) {
-        if (key === 'photo' && typeof value === 'string' && value.startsWith('file://')) {
-          data.append('photo', {
-            uri: value,
-            name: 'photo.jpg',
-            type: 'image/jpeg',
-          } as any);
-        } else if (key !== 'photo') {
-          data.append(key, value);
-        }
-      }
-    });
+const handleSubmit = async () => {
+  setLoading(true); //
 
-    onSaved(data);
+  const data = new FormData();
+  Object.entries(formData).forEach(([key, value]) => {
+    if (value) {
+      if (key === 'photo' && typeof value === 'string' && value.startsWith('file://')) {
+        data.append('photo', {
+          uri: value,
+          name: 'photo.jpg',
+          type: 'image/jpeg',
+        } as any);
+      } else if (key !== 'photo') {
+        data.append(key, value);
+      }
+    }
+  });
+
+  try {
+    await onSaved(data);
     onClose();
-  };
+  } catch (err) {
+    console.error('Error al guardar:', err);
+  } finally {
+    setLoading(false); // 👈 Apaga el loader
+  }
+};
 
   const handleImagePress = () => {
     const uri = formData.photo?.startsWith('file')
       ? formData.photo
-      : baseUrl + formData.photo;
+      : BASE_IMAGE_URL + formData.photo;
     setPreviewUri(uri);
     setImagePreviewVisible(true);
   };
@@ -162,7 +174,7 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
           <TouchableOpacity onPress={handleImagePress}>
             <Image
               source={{
-                uri: formData.photo.startsWith('file') ? formData.photo : baseUrl + formData.photo,
+                uri: formData.photo.startsWith('file') ? formData.photo : BASE_IMAGE_URL + formData.photo,
               }}
               style={styles.image}
             />
@@ -190,7 +202,11 @@ export default function UserModal({ open, onClose, onSaved, userToEdit, availabl
             {previewUri && <Image source={{ uri: previewUri }} style={styles.previewImage} />}
           </TouchableOpacity>
         </View>
+
       </Modal>
+
+      <HourglassLoader visible={loading} />
+
     </Modal>
   );
 }

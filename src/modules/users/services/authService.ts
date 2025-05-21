@@ -1,6 +1,6 @@
 import axios from '@/config/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from '../types';
+import { User } from '../user';
 
 // Helper para agregar token a headers
 async function getAuthHeaders(contentType = 'application/json') {
@@ -59,4 +59,10 @@ export async function logout() {
 
   await AsyncStorage.removeItem('authToken');
   await AsyncStorage.removeItem('user');
+}
+ 
+export async function fetchPaginatedUsers(page = 1) {
+  const headers = await getAuthHeaders();
+  const response = await axios.get(`/users/fetch?page=${page}`, { headers });
+  return response.data.users; // debe contener: data, current_page, last_page
 }

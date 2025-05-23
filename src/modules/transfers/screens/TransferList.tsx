@@ -22,6 +22,15 @@ import DashboardLayout from '@/modules/layouts/template';
 import React, { useEffect, useState } from 'react';
 import { BASE_IMAGE_URL } from '@/config/constants';
 
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/types/navigation';
+
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'ArticleList'>;
+
+
+
 export default function TransferListScreen() {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [page, setPage] = useState(1);
@@ -30,6 +39,9 @@ export default function TransferListScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [transferToEdit, setTransferToEdit] = useState<Transfer | undefined>(undefined);
+  const navigation = useNavigation<NavigationProp>();
+
+
 
   useEffect(() => {
     loadTransfers(1);
@@ -68,7 +80,7 @@ export default function TransferListScreen() {
       const isEdit = formData.has('id');
       const id = formData.get('id');
 
-     let response: Transfer;
+      let response: Transfer;
 
       if (!isEdit) {
         response = await createTransfer(formData);
@@ -162,9 +174,25 @@ export default function TransferListScreen() {
                     <TouchableOpacity onPress={() => handleDelete(item.id)}>
                       <Text style={styles.actionBtn}>🗑️</Text>
                     </TouchableOpacity>
+
+
+                    <TouchableOpacity
+
+                      onPress={() => {
+                        // Aquí navegas al módulo de artículos, pasando el transfer_id
+                        // Asegúrate de tener configurado el stack navigator
+                        navigation.navigate('ArticleList', { transferId: item.id });
+                      }}
+                    >
+                      <Text style={[styles.actionBtn, { color: '#F49A1A' }]}>📦</Text>
+                    </TouchableOpacity>
+
+
                   </View>
                 </View>
               </TouchableOpacity>
+
+
             )}
           />
         )}

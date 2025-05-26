@@ -40,3 +40,8 @@ export async function deleteProduct(id: number) {
   const headers = await getAuthHeaders();
   await axios.delete(`/products/${id}`, { headers });
 }
+export async function searchProductsByDescription(query: string): Promise<Product[]> {
+  const headers = await getAuthHeaders();
+  const response = await axios.get(`/products/search?query=${query}`, { headers });
+  return response.data; // Asegúrate que el backend retorne solo un array de productos
+}

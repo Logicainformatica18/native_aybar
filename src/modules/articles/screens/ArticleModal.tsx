@@ -8,11 +8,15 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { BASE_IMAGE_URL } from '@/config/constants';
 import HourglassLoader from '@/modules/layouts/components/HourglassLoader';
 import { Product } from '@/types/product';
+import SearchSelectInput from '../../components/SearchSelectInput';
+import { searchProductsByDescription } from '@/modules/products/services/productService';
 
 interface Props {
   open: boolean;
@@ -36,10 +40,12 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
   const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
   const [previewUri, setPreviewUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [productId, setProductId] = useState<number | null>(null);
 
   useEffect(() => {
     if (articleToEdit) {
       setFormData({ ...articleToEdit, file_1: null });
+      setProductId(articleToEdit.product_id ?? null);
     } else {
       setFormData({
         id: undefined,
@@ -51,6 +57,7 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
         state: '',
         file_1: null,
       });
+      setProductId(null);
     }
   }, [articleToEdit]);
 
@@ -99,6 +106,10 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
       }
     });
 
+    if (productId) {
+      data.append('product_id', productId.toString());
+    }
+
     try {
       await onSaved(data);
       onClose();
@@ -111,46 +122,107 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
 
   return (
     <Modal visible={open} animationType="slide" onRequestClose={onClose}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>{articleToEdit ? 'Editar Artículo' : 'Nuevo Artículo'}</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>{articleToEdit ? 'Editar Artículo' : 'Nuevo Artículo'}</Text>
 
-        <TextInput style={styles.input} placeholder="Título" value={formData.title} onChangeText={(text) => handleChange('title', text)} />
-        <TextInput style={styles.input} placeholder="Descripción" value={formData.description} onChangeText={(text) => handleChange('description', text)} />
-        <TextInput style={styles.input} placeholder="Detalles" value={formData.details} onChangeText={(text) => handleChange('details', text)} multiline />
-        <TextInput style={styles.input} placeholder="Cantidad" value={formData.quanty} onChangeText={(text) => handleChange('quanty', text)} keyboardType="numeric" />
-        <TextInput style={styles.input} placeholder="Precio" value={formData.price} onChangeText={(text) => handleChange('price', text)} keyboardType="decimal-pad" />
-        <TextInput style={styles.input} placeholder="Estado" value={formData.state} onChangeText={(text) => handleChange('state', text)} />
+          <TextInput
+            style={styles.input}
+            placeholder="Título"
+            value={formData.title}
+            onChangeText={(text) => handleChange('title', text)}
+          />
 
-        <Text style={styles.section}>Archivo</Text>
-        {(formData.file_1 || articleToEdit?.file_1) && (
-          <TouchableOpacity onPress={handleImagePress}>
-            <Image
-              source={{
-                uri: formData.file_1 ? formData.file_1 : BASE_IMAGE_URL + articleToEdit.file_1,
+          <View style={{ marginBottom: 10 }}>
+            <SearchSelectInput
+              value={formData.description}
+              onChange={(id, label) => {
+                setProductId(id);
+                handleChange('description', label);
               }}
-              style={styles.image}
+              fetcher={async (query) => {
+                const products = await searchProductsByDescription(query);
+                return products.map((p) => ({ id: p.id, label: p.description }));
+              }}
+              placeholder="Descripción"
             />
-          </TouchableOpacity>
-        )}
+          </View>
 
-        <TouchableOpacity style={styles.button} onPress={pickImage}>
-          <Text style={styles.buttonText}>{formData.file_1 ? 'Cambiar imagen' : 'Seleccionar imagen'}</Text>
-        </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Detalles"
+            value={formData.details}
+            onChangeText={(text) => handleChange('details', text)}
+            multiline
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Cantidad"
+            value={formData.quanty}
+            onChangeText={(text) => handleChange('quanty', text)}
+            keyboardType="numeric"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Precio"
+            value={formData.price}
+            onChangeText={(text) => handleChange('price', text)}
+            keyboardType="decimal-pad"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Estado"
+            value={formData.state}
+            onChangeText={(text) => handleChange('state', text)}
+          />
 
-        <View style={styles.actions}>
-          <TouchableOpacity style={styles.cancel} onPress={onClose}>
-            <Text style={styles.actionText}>Cancelar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.save} onPress={handleSubmit}>
-            <Text style={styles.actionText}>Guardar</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+          <Text style={styles.section}>Archivo</Text>
+          {(formData.file_1 || articleToEdit?.file_1) && (
+            <TouchableOpacity onPress={handleImagePress}>
+              <Image
+                source={{
+                  uri: formData.file_1
+                    ? formData.file_1
+                    : BASE_IMAGE_URL + articleToEdit.file_1,
+                }}
+                style={styles.image}
+              />
+            </TouchableOpacity>
+          )}
 
-      <Modal visible={imagePreviewVisible} transparent onRequestClose={() => setImagePreviewVisible(false)}>
+          <TouchableOpacity style={styles.button} onPress={pickImage}>
+            <Text style={styles.buttonText}>
+              {formData.file_1 ? 'Cambiar imagen' : 'Seleccionar imagen'}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.actions}>
+            <TouchableOpacity style={styles.cancel} onPress={onClose}>
+              <Text style={styles.actionText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.save} onPress={handleSubmit}>
+              <Text style={styles.actionText}>Guardar</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <Modal
+        visible={imagePreviewVisible}
+        transparent
+        onRequestClose={() => setImagePreviewVisible(false)}
+      >
         <View style={styles.previewOverlay}>
-          <TouchableOpacity style={styles.previewBackground} onPress={() => setImagePreviewVisible(false)}>
-            {previewUri && <Image source={{ uri: previewUri }} style={styles.previewImage} />}
+          <TouchableOpacity
+            style={styles.previewBackground}
+            onPress={() => setImagePreviewVisible(false)}
+          >
+            {previewUri && (
+              <Image source={{ uri: previewUri }} style={styles.previewImage} />
+            )}
           </TouchableOpacity>
         </View>
       </Modal>
@@ -163,14 +235,43 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
 const styles = StyleSheet.create({
   container: { padding: 20 },
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-  input: { borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 10, borderRadius: 8 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+  },
   section: { fontWeight: '600', marginTop: 15, marginBottom: 5 },
-  button: { backgroundColor: '#777', padding: 10, borderRadius: 8, marginBottom: 15 },
+  button: {
+    backgroundColor: '#777',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
   buttonText: { color: '#fff', textAlign: 'center' },
-  image: { width: 80, height: 80, borderRadius: 8, marginBottom: 10, alignSelf: 'center' },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginBottom: 10,
+    alignSelf: 'center',
+  },
   actions: { flexDirection: 'row', justifyContent: 'space-between' },
-  cancel: { backgroundColor: '#ccc', padding: 10, borderRadius: 8, flex: 1, marginRight: 5 },
-  save: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 8, flex: 1, marginLeft: 5 },
+  cancel: {
+    backgroundColor: '#ccc',
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 5,
+  },
+  save: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginLeft: 5,
+  },
   actionText: { color: '#fff', textAlign: 'center' },
   previewOverlay: {
     flex: 1,

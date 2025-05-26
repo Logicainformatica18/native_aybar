@@ -122,7 +122,7 @@ export default function TransferListScreen() {
         <Text style={styles.title}>Lista de transferencias</Text>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#F49A1A" style={{ flex: 1 }} />
+          <ActivityIndicator size="large" color="#03424E" style={{ flex: 1 }} />
         ) : (
           <FlatList
             data={transfers}
@@ -131,7 +131,7 @@ export default function TransferListScreen() {
             onEndReached={() => loadTransfers(page)}
             onEndReachedThreshold={0.3}
             ListFooterComponent={
-              loadingMore ? <ActivityIndicator size="small" color="#F49A1A" /> : null
+              loadingMore ? <ActivityIndicator size="small" color="#03424E" /> : null
             }
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -184,7 +184,7 @@ export default function TransferListScreen() {
                         navigation.navigate('ArticleList', { transferId: item.id });
                       }}
                     >
-                      <Text style={[styles.actionBtn, { color: '#F49A1A' }]}>📦</Text>
+                      <Text style={[styles.actionBtn, { color: '#03424E' }]}>📦</Text>
                     </TouchableOpacity>
 
 
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 30,
-    backgroundColor: '#F49A1A',
+    backgroundColor: '#03424E',
     width: 50,
     height: 50,
     borderRadius: 25,

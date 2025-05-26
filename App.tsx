@@ -58,7 +58,7 @@ function AppNavigator() {
               title: `Artículos de la transferencia #${route.params.transferId}`,
               headerBackTitle: 'Volver',
               headerTitleAlign: 'center',
-              headerStyle: { backgroundColor: '#F49A1A' },
+              headerStyle: { backgroundColor: '#03424E' },
               headerTintColor: '#fff',
             })}
           />

@@ -30,7 +30,7 @@ export default function HourglassLoader({ visible = true }: { visible?: boolean 
   return (
     <View style={styles.overlay}>
       <Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
-        <MaterialCommunityIcons name="timer-sand" size={60} color="#F49A1A" />
+        <MaterialCommunityIcons name="timer-sand" size={60} color="#03424E" />
       </Animated.View>
       <Text style={styles.text}>Cargando...</Text>
     </View>

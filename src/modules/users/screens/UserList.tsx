@@ -100,7 +100,7 @@ export default function UserListScreen() {
         <Text style={styles.title}>Usuarios</Text>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#F49A1A" style={{ flex: 1 }} />
+          <ActivityIndicator size="large" color="#03424E" style={{ flex: 1 }} />
         ) : (
           <FlatList
             data={users}
@@ -145,7 +145,7 @@ export default function UserListScreen() {
             onEndReached={() => loadUsers(page)}
             onEndReachedThreshold={0.3}
             ListFooterComponent={
-              loadingMore ? <ActivityIndicator size="small" color="#F49A1A" /> : null
+              loadingMore ? <ActivityIndicator size="small" color="#03424E" /> : null
             }
           />
         )}
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 30,
-    backgroundColor: '#F49A1A',
+    backgroundColor: '#03424E',
     width: 50,
     height: 50,
     borderRadius: 25,

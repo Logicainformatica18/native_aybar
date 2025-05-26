@@ -62,7 +62,7 @@ export default function LoginScreen() {
       <View style={styles.svgContainer}>
         <Svg height="160" width={width} viewBox={`0 0 ${width} 160`}>
           <Path
-            fill="#F49A1A"
+            fill="#03424E"
             d={`M0,0 C${width * 0.3},100 ${width * 0.7},20 ${width},120 L${width},0 L0,0 Z`}
           />
         </Svg>
@@ -115,7 +115,7 @@ export default function LoginScreen() {
       <View style={styles.svgBottom}>
   <Svg height="160" width={width} viewBox={`0 0 ${width} 160`}>
     <Path
-      fill="#F49A1A"
+      fill="#03424E"
       d={`M0,80 C${width * 0.3},140 ${width * 0.7},20 ${width},80 L${width},160 L0,160 Z`}
     />
   </Svg>
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     color: '#555',
   },
   button: {
-    backgroundColor: '#F49A1A',
+    backgroundColor: '#03424E',
     padding: 14,
     borderRadius: 8,
     alignItems: 'center',

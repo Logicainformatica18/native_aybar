@@ -110,7 +110,7 @@ export default function ProductListScreen() {
         <Text style={styles.title}>Lista de productos</Text>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#F49A1A" style={{ flex: 1 }} />
+          <ActivityIndicator size="large" color="#03424E" style={{ flex: 1 }} />
         ) : (
           <FlatList
             data={products}
@@ -119,7 +119,7 @@ export default function ProductListScreen() {
             onEndReached={() => loadProducts(page)}
             onEndReachedThreshold={0.3}
             ListFooterComponent={
-              loadingMore ? <ActivityIndicator size="small" color="#F49A1A" /> : null
+              loadingMore ? <ActivityIndicator size="small" color="#03424E" /> : null
             }
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     bottom: 30,
-    backgroundColor: '#F49A1A',
+    backgroundColor: '#03424E',
     width: 50,
     height: 50,
     borderRadius: 25,

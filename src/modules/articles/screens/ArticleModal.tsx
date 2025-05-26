@@ -28,7 +28,7 @@ interface Props {
 export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: Props) {
   const [formData, setFormData] = useState({
     id: undefined,
-    title: '',
+    title: null as string | null,
     description: '',
     details: '',
     quanty: '',
@@ -49,7 +49,7 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
     } else {
       setFormData({
         id: undefined,
-        title: '',
+        title: null,
         description: '',
         details: '',
         quanty: '',
@@ -158,13 +158,18 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
             onChangeText={(text) => handleChange('details', text)}
             multiline
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Cantidad"
-            value={formData.quanty}
-            onChangeText={(text) => handleChange('quanty', text)}
-            keyboardType="numeric"
-          />
+        <TextInput
+  style={styles.input}
+  placeholder="Cantidad"
+  value={formData.quanty}
+  onChangeText={(text) => {
+    const onlyNumbers = text.replace(/[^0-9]/g, ''); // ✅ solo dígitos
+    handleChange('quanty', onlyNumbers);
+  }}
+  keyboardType="number-pad"
+  inputMode="numeric" // opcional para mejor soporte
+/>
+
           <TextInput
             style={styles.input}
             placeholder="Precio"

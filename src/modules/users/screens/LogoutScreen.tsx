@@ -11,7 +11,7 @@ export default function LogoutScreen() {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" color="#F49A1A" />
+      <ActivityIndicator size="large" color="#03424E" />
     </View>
   );
 }

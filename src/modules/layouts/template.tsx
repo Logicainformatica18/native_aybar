@@ -28,7 +28,7 @@ export default function DashboardLayout({ title, children, showBack = false }: D
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5' },
   header: {
-    backgroundColor: '#F49A1A',
+    backgroundColor: '#03424E',
     paddingTop: 50,
     paddingBottom: 16,
     paddingHorizontal: 20,

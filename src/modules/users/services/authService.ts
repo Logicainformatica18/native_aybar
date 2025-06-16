@@ -1,6 +1,6 @@
 import axios from '@/config/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from '../user';
+import { User } from 'src/types/user';
 
 // Helper para agregar token a headers
 async function getAuthHeaders(contentType = 'application/json') {

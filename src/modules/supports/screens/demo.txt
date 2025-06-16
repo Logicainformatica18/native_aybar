@@ -1,0 +1,32 @@
+  {item.cellphone && <Text variant="labelSmall">📱 Celular: {item.client?.telefono}</Text>}
+        {item.cellphone && <Text variant="labelSmall">📱 Dni: {item.client?.dni}</Text>}
+        {item.cellphone && <Text variant="labelSmall">📱 Dirección: {item.client?.direccion}</Text>}
+     
+
+        <Divider style={styles.divider} />
+
+        {/* 📄 Detalle de Atención */}
+        <SectionTitle title="Detalle de Atención" />
+        <Text variant="labelSmall">📆 Fecha: {new Date(item.created_at).toLocaleDateString()}</Text>
+        {item.priority && <Text variant="labelSmall">⚠️ Prioridad: {item.priority}</Text>}
+        {item.description && <Text variant="labelSmall">📝 Descripción: {item.description}</Text>}
+        {item.project?.descripcion && <Text variant="labelSmall">🏗 Proyecto: {item.project.descripcion}</Text>}
+        {item.tipo_cita?.tipo && <Text variant="labelSmall">📅 Tipo Cita: {item.tipo_cita.tipo}</Text>}
+        {item.motivo_cita?.nombre_motivo && <Text variant="labelSmall">✏️ Motivo: {item.motivo_cita.nombre_motivo}</Text>}
+        {item.dia_espera?.dias != null && <Text variant="labelSmall">⏳ Días Espera: {item.dia_espera.dias}</Text>}
+        {item.Manzana && <Text variant="labelSmall">🧩 Manzana: {item.Manzana}</Text>}
+        {item.Lote && <Text variant="labelSmall">🧩 Lote: {item.Lote}</Text>}
+
+        <Divider style={styles.divider} />
+
+        {/* ⚙️ Configuración Avanzada */}
+        <SectionTitle title="Configuración Avanzada" />
+        {item.area?.descripcion && <Text variant="labelSmall">📌 Área: {item.area.descripcion}</Text>}
+        {item.internal_state?.description && <Text variant="labelSmall">🔒 Estado Interno: {item.internal_state.description}</Text>}
+        {item.external_state?.description && <Text variant="labelSmall">🌐 Estado Externo: {item.external_state.description}</Text>}
+        {item.support_type?.description && <Text variant="labelSmall">📂 Tipo Soporte: {item.support_type.description}</Text>}
+        {item.type_id && <Text variant="labelSmall">🔖 Tipo Catálogo: {item.type_id}</Text>}
+        {item.reservation_time && <Text variant="labelSmall">📅 Reserva: {item.reservation_time}</Text>}
+        {item.attended_at && <Text variant="labelSmall">✅ Atendido: {item.attended_at}</Text>}
+        {item.derived && <Text variant="labelSmall">➡️ Derivado: {item.derived}</Text>}
+           {item.creator?.names && <Text variant="labelSmall">👤 Creador: {item.creator.names}</Text>}

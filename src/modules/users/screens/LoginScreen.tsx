@@ -1,20 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   Alert,
-  SafeAreaView,
-  ActivityIndicator,
-  Image,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import {
+  TextInput,
+  Button,
+  Text,
+  Card,
+  Checkbox,
+} from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { login as loginService } from '../services/authService';
 import { useAuth } from '../../../contexts/AuthContext';
-import { API_URL } from '@/config/constants';
+import { BASE_SRC } from '@/config/constants';
 
 const { width } = Dimensions.get('window');
 
@@ -23,9 +26,20 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const passwordRef = useRef<TextInput>(null);
-
+  const [rememberMe, setRememberMe] = useState(false);
+  const passwordRef = useRef(null);
   const { login } = useAuth();
+
+  useEffect(() => {
+    const loadRemembered = async () => {
+      const storedEmail = await AsyncStorage.getItem('rememberedEmail');
+      if (storedEmail) {
+        setEmail(storedEmail);
+        setRememberMe(true);
+      }
+    };
+    loadRemembered();
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -38,6 +52,12 @@ export default function LoginScreen() {
       const res = await loginService(email, password);
       await login(res.user, res.token);
 
+      if (rememberMe) {
+        await AsyncStorage.setItem('rememberedEmail', email);
+      } else {
+        await AsyncStorage.removeItem('rememberedEmail');
+      }
+
       setEmail('');
       setPassword('');
     } catch (err: any) {
@@ -49,7 +69,6 @@ export default function LoginScreen() {
       } else if (err?.message) {
         message = err.message;
       }
-
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
@@ -57,9 +76,9 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      {/* SVG FONDO ONDULADO */}
-      <View style={styles.svgContainer}>
+    <View style={{ flex: 1, backgroundColor: '#fefefe' }}>
+      {/* SVG Superior */}
+      <View style={{ position: 'absolute', top: 0 }}>
         <Svg height="160" width={width} viewBox={`0 0 ${width} 160`}>
           <Path
             fill="#03424E"
@@ -68,131 +87,85 @@ export default function LoginScreen() {
         </Svg>
       </View>
 
-      <SafeAreaView style={styles.container}>
-        <Image
-          source={{ uri: API_URL + '/logo/1.png' }}
-          style={styles.logo}
-        />
+      <KeyboardAvoidingView
+        style={{ flex: 1, justifyContent: 'center', padding: 24 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Card style={{ padding: 20, elevation: 4 }}>
+          <View style={{ alignItems: 'center', marginBottom: 16 }}>
+            <Card.Cover
+              source={{ uri: BASE_SRC + '/logo/1.png' }}
+              style={{
+                resizeMode: 'contain',
+                backgroundColor: 'transparent',
+                height: 100,
+                width: 100,
+              }}
+            />
+          </View>
 
-        <Text style={styles.title}>Iniciar Sesión</Text>
+          <Text variant="titleLarge" style={{ marginVertical: 16, textAlign: 'center', fontWeight: 'bold' }}>
+            Iniciar Sesión
+          </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Correo electrónico"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-          returnKeyType="next"
-          onSubmitEditing={() => passwordRef.current?.focus()}
-        />
+          <TextInput
+            label="Correo electrónico"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            style={{ marginBottom: 12 }}
+          />
 
-        <View style={styles.passwordContainer}>
           <TextInput
             ref={passwordRef}
-            style={styles.passwordInput}
-            placeholder="Contraseña"
-            secureTextEntry={!showPassword}
+            label="Contraseña"
             value={password}
             onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            right={
+              <TextInput.Icon
+                icon={showPassword ? 'eye-off' : 'eye'}
+                onPress={() => setShowPassword(!showPassword)}
+              />
+            }
             returnKeyType="go"
             onSubmitEditing={handleLogin}
+            style={{ marginBottom: 8 }}
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Text style={styles.toggle}>{showPassword ? '🙈' : '👁️'}</Text>
-          </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Ingresar</Text>
-          )}
-        </TouchableOpacity>
-      </SafeAreaView>
+          {/* Checkbox Recordarme */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+            <Checkbox
+              status={rememberMe ? 'checked' : 'unchecked'}
+              onPress={() => setRememberMe(!rememberMe)}
+            />
+            <Text onPress={() => setRememberMe(!rememberMe)}>Recordarme</Text>
+          </View>
 
-      <View style={styles.svgBottom}>
-  <Svg height="160" width={width} viewBox={`0 0 ${width} 160`}>
-    <Path
-      fill="#03424E"
-      d={`M0,80 C${width * 0.3},140 ${width * 0.7},20 ${width},80 L${width},160 L0,160 Z`}
-    />
-  </Svg>
-</View>
+          <Button
+            mode="contained"
+            onPress={handleLogin}
+            loading={loading}
+            disabled={loading}
+            style={{ backgroundColor: '#03424E' }}
+          >
+            Ingresar
+          </Button>
+        </Card>
+      </KeyboardAvoidingView>
 
+      {/* SVG Inferior */}
+      <View style={{ position: 'absolute', bottom: 0 }}>
+        <Svg height="160" width={width} viewBox={`0 0 ${width} 160`}>
+          <Path
+            fill="#03424E"
+            d={`M0,80 C${width * 0.3},140 ${width * 0.7},20 ${width},80 L${width},160 L0,160 Z`}
+          />
+        </Svg>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#fefefe',
-  },
-  svgContainer: {
-    position: 'absolute',
-    top: 0,
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    alignSelf: 'center',
-    marginBottom: 20,
-    resizeMode: 'contain',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 14,
-    backgroundColor: '#fff',
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    marginBottom: 14,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingRight: 10,
-  },
-  passwordInput: {
-    flex: 1,
-    padding: 12,
-  },
-  toggle: {
-    fontSize: 18,
-    color: '#555',
-  },
-  button: {
-    backgroundColor: '#03424E',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  svgBottom: {
-  position: 'absolute',
-  bottom: 0,
-},
-
-});

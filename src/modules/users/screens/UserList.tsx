@@ -1,20 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import {
   View,
-  Text,
   FlatList,
-  TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  ActivityIndicator,
-  Alert,
   Image,
 } from 'react-native';
+import {
+  ActivityIndicator,
+  Avatar,
+  Card,
+  FAB,
+  IconButton,
+  Text,
+  Title,
+  useTheme
+} from 'react-native-paper';
+
 import { fetchPaginatedUsers, createUser, updateUser, deleteUser } from '../services/authService';
 import { User } from 'src/types/user';
 import UserModal from './UserModal';
 import DashboardLayout from '../../layouts/template';
 import { BASE_IMAGE_URL_USER } from '@/config/constants';
+
 
 export default function UserListScreen() {
   const [users, setUsers] = useState<User[]>([]);
@@ -24,6 +32,7 @@ export default function UserListScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [userToEdit, setUserToEdit] = useState<User | undefined>(undefined);
+  const { colors } = useTheme();
 
   const availableRoles = [{ name: 'admin' }, { name: 'editor' }, { name: 'viewer' }];
 
@@ -76,83 +85,73 @@ export default function UserListScreen() {
     }
   };
 
-  const handleDelete = (userId: number) => {
-    Alert.alert('Confirmar', '¿Deseas eliminar este usuario?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteUser(userId);
-            await loadUsers(1);
-          } catch (err) {
-            console.error('❌ Error al eliminar usuario:', err);
-          }
-        },
-      },
-    ]);
+  const handleDelete = async (userId: number) => {
+    // En producción puedes usar Dialog.confirm
+    await deleteUser(userId);
+    await loadUsers(1);
   };
+
+  const renderUser = ({ item }: { item: User }) => (
+    <Card style={styles.card} mode="outlined">
+      <Card.Title
+        title={`${item.names}`}
+        subtitle={item.email}
+        left={() =>
+          item.photo ? (
+            <Avatar.Image
+              size={48}
+              source={{ uri: item.photo.startsWith('http') ? item.photo : BASE_IMAGE_URL_USER + item.photo }}
+            />
+          ) : (
+            <Avatar.Icon size={48} icon="account" />
+          )
+        }
+        right={() => (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <IconButton
+              icon="pencil"
+              onPress={() => {
+                setUserToEdit(item);
+                setShowModal(true);
+              }}
+            />
+            <IconButton icon="delete" onPress={() => handleDelete(item.id)} />
+          </View>
+        )}
+      />
+      <Card.Content>
+        <Text variant="labelSmall">📅 {new Date(item.created_at).toLocaleDateString()}</Text>
+      </Card.Content>
+    </Card>
+  );
 
   return (
     <DashboardLayout title="App Cargos">
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>Usuarios</Text>
+        <Title style={styles.title}>Usuarios</Title>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#03424E" style={{ flex: 1 }} />
+          <ActivityIndicator animating={true} size="large" color={colors.primary} />
         ) : (
           <FlatList
             data={users}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingBottom: 80 }}
-            renderItem={({ item }) => (
-              <View style={styles.userItem}>
-                <View style={styles.userRow}>
-                  {item.photo && (
-                    <Image
-                      source={{ uri: item.photo.startsWith('http') ? item.photo : BASE_IMAGE_URL_USER + item.photo }}
-                      style={styles.avatar}
-                    />
-                  )}
-
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.name}>{item.id} {item.names}</Text>
-                    <Text style={styles.email}>- {item.email}</Text>
-                    {/* {item.role && <Text style={[styles.role, styles[`role_${item.role}`]]}>{item.role}</Text>} */}
-                    {item.created_at && (
-                      <Text style={styles.date}>
-                        📅 {new Date(item.created_at).toLocaleDateString()}
-                      </Text>
-                    )}
-                  </View>
-
-                  <View style={styles.actions}>
-                    <TouchableOpacity onPress={() => {
-                      setUserToEdit(item);
-                      setShowModal(true);
-                    }}>
-                      <Text style={styles.actionBtn}>✏️</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                      <Text style={styles.actionBtn}>🗑️</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            )}
+            renderItem={renderUser}
+            contentContainerStyle={{ paddingBottom: 100 }}
             onEndReached={() => loadUsers(page)}
             onEndReachedThreshold={0.3}
             ListFooterComponent={
-              loadingMore ? <ActivityIndicator size="small" color="#03424E" /> : null
+              loadingMore ? <ActivityIndicator size="small" color={colors.primary} /> : null
             }
           />
         )}
 
-        <TouchableOpacity style={styles.fab} onPress={openNewUserModal}>
-          <Text style={styles.fabText}>＋</Text>
-        </TouchableOpacity>
+        <FAB
+          icon="plus"
+          style={styles.fab}
+          onPress={openNewUserModal}
+          color="#fff"
+        />
 
         <UserModal
           open={showModal}
@@ -168,64 +167,12 @@ export default function UserListScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginTop: 46 },
-  userItem: {
-    backgroundColor: '#eeeeee',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
-  },
-  userRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-    backgroundColor: '#ccc',
-  },
-  name: { fontSize: 16, fontWeight: '600' },
-  email: { fontSize: 14, color: '#555' },
-  date: { fontSize: 12, color: '#888', marginTop: 2 },
-  role: {
-    fontSize: 12,
-    marginTop: 4,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
-    color: 'white',
-    overflow: 'hidden',
-  },
-  role_admin: { backgroundColor: '#E53935' },
-  role_editor: { backgroundColor: '#F9A825' },
-  role_viewer: { backgroundColor: '#43A047' },
-  actions: {
-    marginLeft: 10,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  actionBtn: {
-    fontSize: 18,
-  },
+  title: { fontSize: 22, marginBottom: 10 },
+  card: { marginBottom: 12 },
   fab: {
     position: 'absolute',
     right: 20,
     bottom: 30,
-    backgroundColor: '#03424E',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-  },
-  fabText: {
-    color: '#fff',
-    fontSize: 30,
-    lineHeight: 30,
+    backgroundColor: '#6200ee',
   },
 });

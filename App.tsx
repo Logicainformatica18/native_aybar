@@ -52,17 +52,9 @@ function DrawerRoutes() {
         drawerLabelStyle: { marginLeft: -5 },
       }}
     >
+    
       <Drawer.Screen
-        name="Usuarios"
-        component={UserListScreen}
-        options={{
-          drawerIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-group" size={size} color={color} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="Atenciones"
+        name="Solicitudes"
         component={SupportListScreen}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -70,6 +62,15 @@ function DrawerRoutes() {
           ),
         }}
       />
+        {/* <Drawer.Screen
+        name="Usuarios"
+        component={UserListScreen}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account-group" size={size} color={color} />
+          ),
+        }}
+      /> */}
       <Drawer.Screen
         name="Cerrar Sesión"
         component={LogoutScreen}
@@ -86,6 +87,7 @@ function DrawerRoutes() {
 
 export default function App() {
   return (
+ 
     <SafeAreaProvider>
       <PaperProvider>
         <AuthProvider>

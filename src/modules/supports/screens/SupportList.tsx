@@ -15,7 +15,8 @@ import {
   useTheme,
   Divider,
 } from 'react-native-paper';
-
+import { Alert } from 'react-native';
+import { LayoutAnimation, Platform, UIManager } from 'react-native';
 import DashboardLayout from '../../layouts/template';
 import SupportModal from './SupportModal';
 import { Support } from '@/types/supports';
@@ -55,7 +56,14 @@ export default function SupportListScreen() {
   const [internalStates, setInternalStates] = useState<Option[]>([]);
   const [externalStates, setExternalStates] = useState<Option[]>([]);
   const [types, setTypes] = useState<Option[]>([]);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
+
+
+  const toggleExpand = (id: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedId((prevId) => (prevId === id ? null : id));
+  };
   useEffect(() => {
     loadSupports(1);
   }, []);
@@ -65,8 +73,12 @@ export default function SupportListScreen() {
 
     pageToLoad === 1 ? setLoading(true) : setLoadingMore(true);
 
+
+
     try {
       const data = await fetchPaginatedSupports(pageToLoad);
+      // 🔎 Imprimir en consola para analizar estructura
+      console.log('📦 Supports cargados:', JSON.stringify(data.data, null, 2));
       setSupports(pageToLoad === 1 ? data.data : [...supports, ...data.data]);
       setPage(data.current_page + 1);
       setLastPage(data.last_page);
@@ -138,16 +150,36 @@ export default function SupportListScreen() {
     }
   };
 
-  const handleDelete = async (supportId: number) => {
-    await deleteSupport(supportId);
-    await loadSupports(1);
-  };
+  //  const handleDelete = (supportId: number) => {
+  //   Alert.alert(
+  //     '¿Eliminar soporte?',
+  //     'Esta acción no se puede deshacer. ¿Estás seguro?',
+  //     [
+  //       { text: 'Cancelar', style: 'cancel' },
+  //       {
+  //         text: 'Eliminar',
+  //         style: 'destructive',
+  //         onPress: async () => {
+  //           try {
+  //             await deleteSupport(supportId);
+  //             await loadSupports(1);
+  //           } catch (error) {
+  //             console.error('❌ Error al eliminar soporte:', error);
+  //           }
+  //         },
+  //       },
+  //     ],
+  //     { cancelable: true }
+  //   );
+  // };
+
 
   const renderSupport = ({ item }: { item: Support }) => (
     <Card style={styles.card} mode="outlined">
       <Card.Title
-        title={'📝 ' + item.subject}
-        subtitle={`Estado: ${item.status}`}
+      title={'📝 Ticket #' + String(item.details[0].id).padStart(4, '0')}
+
+        subtitle={`Estado global: ${item.status_global}`}
         right={() => (
           <View style={{ flexDirection: 'row' }}>
             <IconButton
@@ -158,27 +190,65 @@ export default function SupportListScreen() {
                 setShowModal(true);
               }}
             />
-            <IconButton icon="delete" onPress={() => handleDelete(item.id)} />
+            {/* <IconButton icon="delete" onPress={() => handleDelete(item.id)} /> */}
           </View>
         )}
       />
       <Card.Content>
-        <SectionTitle title="Datos del Cliente" />
-        {item.client?.Razon_Social && <Text variant="labelSmall">🏢 Cliente: {item.client?.Razon_Social}</Text>}
-        {/* Agrega más campos si quieres */}
+        <SectionTitle title="Cliente" />
+        {item.client?.Razon_Social && (
+          <Text variant="labelSmall">🏢 {item.client.Razon_Social}</Text>
+        )}
+        {item.client?.dni && (
+          <Text variant="labelSmall">🆔 DNI/CE: {item.client.dni}</Text>
+        )}
+{item.client?.email && (
+          <Text variant="labelSmall">Email: {item.client.email}</Text>
+        )}
+        <View style={{ alignItems: 'flex-end', marginTop: 0 }}>
+          <IconButton
+            icon={expandedId === item.id ? 'chevron-up' : 'chevron-down'}
+            onPress={() => toggleExpand(item.id)}
+          />
+        </View>
+
+        {expandedId === item.id && (
+          <>
+            <Divider style={styles.divider} />
+            <SectionTitle title="Detalles de atención" />
+            {item.details?.map((detail, index) => (
+              <View key={detail.id}>
+                <Text variant="labelSmall">🧾 Detalle #{index + 1}</Text>
+                <Text variant="labelSmall">🔹 Asunto: {detail.subject}</Text>
+                <Text variant="labelSmall">🧩 Tipo: {detail.type}</Text>
+                <Text variant="labelSmall">📍 Área: {detail.area?.descripcion}</Text>
+                <Text variant="labelSmall">🏗 Proyecto: {detail.project?.descripcion}</Text>
+                <Text variant="labelSmall">⚙ Estado: {detail.status}</Text>
+                <Text variant="labelSmall">🎯 Prioridad: {detail.priority}</Text>
+                <Text variant="labelSmall">📦 Manzana: {detail.Manzana}</Text>
+                <Text variant="labelSmall">📦 Lote: {detail.Lote}</Text>
+                <Text variant="labelSmall">📅 Reserva: {detail.reservation_time ?? '-'}</Text>
+                <Text variant="labelSmall">📅 Atendido: {detail.attended_at ?? '-'}</Text>
+                <Divider style={styles.divider} />
+              </View>
+            ))}
+          </>
+        )}
       </Card.Content>
+
     </Card>
   );
+
 
   function SectionTitle({ title }: { title: string }) {
     return <Text style={styles.sectionTitle}>{title}</Text>;
   }
 
   return (
-    <DashboardLayout title="Atenciones">
+    <DashboardLayout title="Solicitudes">
       <View style={styles.wrapper}>
         <SafeAreaView style={styles.container}>
-          <Title style={styles.title}>Atenciones</Title>
+          <Title style={styles.title}>Solicitudes</Title>
 
           {loading ? (
             <ActivityIndicator animating={true} size="large" color={colors.primary} />
@@ -234,15 +304,15 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
   },
   title: {
     fontSize: 22,
-    marginBottom: 10,
+    marginBottom: 0,
   },
   card: {
-    marginBottom: 12,
-    marginHorizontal: 10,
+    marginBottom: 5,
+    marginHorizontal: 5,
   },
   sectionTitle: {
     marginTop: 12,

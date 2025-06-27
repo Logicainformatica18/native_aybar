@@ -12,12 +12,11 @@ import {
   TextInput,
   Title,
   useTheme,
-  RadioButton,
 } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import HourglassLoader from '@/modules/layouts/components/HourglassLoader';
-import { Support } from '@/types/supports';
+import { SupportFormData } from '@/types/supports';
+import ClientSearchMobile from '@/modules/supports/screens/ClientSearchMobile';
 
 interface Option {
   id: number;
@@ -28,8 +27,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSaved: (formData: FormData) => void;
-  supportToEdit?: Support;
-
+  supportToEdit?: SupportFormData | null;
   areas: Option[];
   clients: Option[];
   projects: Option[];
@@ -57,7 +55,7 @@ export default function SupportModal({
   types,
 }: Props) {
   const { colors } = useTheme();
-  const [formData, setFormData] = useState<Partial<Support>>({
+  const [formData, setFormData] = useState<SupportFormData>({
     subject: '',
     description: '',
     priority: 'Normal',
@@ -69,14 +67,49 @@ export default function SupportModal({
     cellphone: '',
     Manzana: '',
     Lote: '',
+    client_id: null,
+    dni: '',
+    email: '',
+    address: '',
+    project_id: null,
+    area_id: null,
+    id_motivos_cita: null,
+    id_tipo_cita: null,
+    id_dia_espera: null,
+    internal_state_id: null,
+    external_state_id: null,
+    type_id: null,
   });
 
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (supportToEdit) {
-      setFormData({ ...supportToEdit });
+      setFormData({
+        subject: '',
+        description: '',
+        priority: 'Normal',
+        type: 'Consulta',
+        status: 'Pendiente',
+        reservation_time: '',
+        attended_at: '',
+        derived: '',
+        cellphone: supportToEdit.cellphone || '',
+        Manzana: '',
+        Lote: '',
+        client_id: supportToEdit.client_id,
+        dni: supportToEdit.client?.dni || '',
+        email: supportToEdit.client?.email || '',
+        address: supportToEdit.client?.direccion || '',
+        project_id: null,
+        area_id: null,
+        id_motivos_cita: null,
+        id_tipo_cita: null,
+        id_dia_espera: null,
+        internal_state_id: null,
+        external_state_id: null,
+        type_id: null,
+      });
     } else {
       setFormData({
         subject: '',
@@ -90,11 +123,23 @@ export default function SupportModal({
         cellphone: '',
         Manzana: '',
         Lote: '',
+        client_id: null,
+        dni: '',
+        email: '',
+        address: '',
+        project_id: null,
+        area_id: null,
+        id_motivos_cita: null,
+        id_tipo_cita: null,
+        id_dia_espera: null,
+        internal_state_id: null,
+        external_state_id: null,
+        type_id: null,
       });
     }
   }, [supportToEdit]);
 
-  const handleChange = (key: keyof Support, value: any) => {
+  const handleChange = (key: keyof SupportFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -108,6 +153,31 @@ export default function SupportModal({
       }
     });
 
+    const details = [
+      {
+        subject: formData.subject,
+        description: formData.description,
+        priority: formData.priority,
+        type: formData.type,
+        status: formData.status,
+        reservation_time: new Date().toISOString(),
+        attended_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        derived: formData.derived,
+        project_id: formData.project_id,
+        area_id: formData.area_id,
+        id_motivos_cita: formData.id_motivos_cita,
+        id_tipo_cita: formData.id_tipo_cita,
+        id_dia_espera: formData.id_dia_espera,
+        internal_state_id: formData.internal_state_id,
+        external_state_id: formData.external_state_id,
+        type_id: formData.type_id,
+        Manzana: formData.Manzana,
+        Lote: formData.Lote,
+      },
+    ];
+
+    data.append('details', JSON.stringify(details));
+
     try {
       if (supportToEdit?.id) data.append('id', supportToEdit.id.toString());
       await onSaved(data);
@@ -119,7 +189,7 @@ export default function SupportModal({
     }
   };
 
-  const renderPicker = (label: string, field: keyof Support, options: Option[]) => (
+  const renderPicker = (label: string, field: keyof SupportFormData, options: Option[]) => (
     <>
       <Text style={styles.label}>{label}</Text>
       <Picker
@@ -143,59 +213,49 @@ export default function SupportModal({
             <Title>{supportToEdit ? 'Editar Soporte' : 'Nuevo Soporte'}</Title>
 
             <TextInput label="Asunto" value={formData.subject || ''} onChangeText={(text) => handleChange('subject', text)} style={styles.input} />
-            <TextInput label="Descripción" value={formData.description || ''} onChangeText={(text) => handleChange('description', text)} multiline style={styles.input} />
+            <TextInput
+              label="Descripción"
+              value={formData.description || ''}
+              onChangeText={(text) => handleChange('description', text)}
+              multiline
+              numberOfLines={4}
+              style={[styles.input, styles.textArea]}
+            />
 
-            {renderPicker('Área', 'area_id', areas)}
-            {renderPicker('Cliente', 'client_id', clients)}
+            <ClientSearchMobile
+              onClientSelected={(client) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  client_id: client.id,
+                  dni: client.dni,
+                  cellphone: client.cellphone,
+                  email: client.email,
+                  address: client.address,
+                }));
+              }}
+            />
+
+            <TextInput label="DNI" value={formData.dni} onChangeText={(value) => handleChange('dni', value)} style={styles.input} />
+            <TextInput label="Celular" value={formData.cellphone} onChangeText={(value) => handleChange('cellphone', value)} style={styles.input} />
+            <TextInput label="Email" value={formData.email} onChangeText={(value) => handleChange('email', value)} style={styles.input} />
+            <TextInput label="Dirección" value={formData.address} onChangeText={(value) => handleChange('address', value)} style={styles.input} />
+
             {renderPicker('Proyecto', 'project_id', projects)}
-            {renderPicker('Motivo de Cita', 'id_motivos_cita', motivosCita)}
-            {renderPicker('Tipo de Cita', 'id_tipo_cita', tiposCita)}
-            {renderPicker('Día de Espera', 'id_dia_espera', diasEspera)}
-            {renderPicker('Estado Interno', 'internal_state_id', internalStates)}
-            {renderPicker('Estado Externo', 'external_state_id', externalStates)}
-            {renderPicker('Tipo', 'type_id', types)}
 
             <Text style={styles.label}>Prioridad</Text>
-            <RadioButton.Group onValueChange={(value) => handleChange('priority', value)} value={formData.priority}>
-              <RadioButton.Item label="Normal" value="Normal" />
-              <RadioButton.Item label="Alta" value="Alta" />
-              <RadioButton.Item label="Urgente" value="Urgente" />
-            </RadioButton.Group>
+            <Picker
+              selectedValue={formData.priority}
+              onValueChange={(itemValue) => handleChange('priority', itemValue)}
+              style={{ backgroundColor: '#fff', borderRadius: 4 }}
+            >
+              <Picker.Item label="Urgente" value="Urgente" />
+              <Picker.Item label="Moderado" value="Moderado" />
+              <Picker.Item label="Normal" value="Normal" />
+              <Picker.Item label="Baja Prioridad" value="Baja Prioridad" />
+            </Picker>
 
-            <Text style={styles.label}>Tipo</Text>
-            <RadioButton.Group onValueChange={(value) => handleChange('type', value)} value={formData.type}>
-              <RadioButton.Item label="Consulta" value="Consulta" />
-              <RadioButton.Item label="Reclamo" value="Reclamo" />
-              <RadioButton.Item label="Sugerencia" value="Sugerencia" />
-            </RadioButton.Group>
-
-            <Text style={styles.label}>Estado</Text>
-            <RadioButton.Group onValueChange={(value) => handleChange('status', value)} value={formData.status}>
-              <RadioButton.Item label="Pendiente" value="Pendiente" />
-              <RadioButton.Item label="Atendido" value="Atendido" />
-              <RadioButton.Item label="Cerrado" value="Cerrado" />
-            </RadioButton.Group>
-
-            <TextInput label="Derivado a" value={formData.derived || ''} onChangeText={(text) => handleChange('derived', text)} style={styles.input} />
-            <TextInput label="Celular" value={formData.cellphone || ''} onChangeText={(text) => handleChange('cellphone', text)} keyboardType="phone-pad" style={styles.input} />
             <TextInput label="Manzana" value={formData.Manzana || ''} onChangeText={(text) => handleChange('Manzana', text)} style={styles.input} />
             <TextInput label="Lote" value={formData.Lote || ''} onChangeText={(text) => handleChange('Lote', text)} style={styles.input} />
-
-            <Text style={styles.label}>Fecha de Reserva</Text>
-            <Button mode="outlined" onPress={() => setShowDatePicker(true)}>{formData.reservation_time ? new Date(formData.reservation_time).toLocaleDateString() : 'Seleccionar fecha'}</Button>
-            {showDatePicker && (
-              <DateTimePicker
-                value={formData.reservation_time ? new Date(formData.reservation_time) : new Date()}
-                mode="date"
-                display="default"
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (selectedDate) {
-                    handleChange('reservation_time', selectedDate.toISOString().split('T')[0]);
-                  }
-                }}
-              />
-            )}
 
             <View style={styles.actions}>
               <Button mode="outlined" onPress={onClose} style={styles.actionButton}>Cancelar</Button>
@@ -210,9 +270,37 @@ export default function SupportModal({
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  input: { marginBottom: 10 },
-  label: { marginTop: 10, fontWeight: '600' },
-  actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 },
-  actionButton: { flex: 1, marginHorizontal: 4 },
+  container: {
+    padding: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 14,
+    marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+  label: {
+    marginTop: 10,
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginBottom: 4,
+    color: '#333',
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  actionButton: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
 });

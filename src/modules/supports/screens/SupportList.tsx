@@ -58,27 +58,21 @@ export default function SupportListScreen() {
   const [types, setTypes] = useState<Option[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-
-
   const toggleExpand = (id: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpandedId((prevId) => (prevId === id ? null : id));
   };
+
   useEffect(() => {
     loadSupports(1);
   }, []);
 
   const loadSupports = async (pageToLoad: number) => {
     if (loadingMore || pageToLoad > lastPage) return;
-
     pageToLoad === 1 ? setLoading(true) : setLoadingMore(true);
-
-
 
     try {
       const data = await fetchPaginatedSupports(pageToLoad);
-      // 🔎 Imprimir en consola para analizar estructura
-      console.log('📦 Supports cargados:', JSON.stringify(data.data, null, 2));
       setSupports(pageToLoad === 1 ? data.data : [...supports, ...data.data]);
       setPage(data.current_page + 1);
       setLastPage(data.last_page);
@@ -150,34 +144,14 @@ export default function SupportListScreen() {
     }
   };
 
-  //  const handleDelete = (supportId: number) => {
-  //   Alert.alert(
-  //     '¿Eliminar soporte?',
-  //     'Esta acción no se puede deshacer. ¿Estás seguro?',
-  //     [
-  //       { text: 'Cancelar', style: 'cancel' },
-  //       {
-  //         text: 'Eliminar',
-  //         style: 'destructive',
-  //         onPress: async () => {
-  //           try {
-  //             await deleteSupport(supportId);
-  //             await loadSupports(1);
-  //           } catch (error) {
-  //             console.error('❌ Error al eliminar soporte:', error);
-  //           }
-  //         },
-  //       },
-  //     ],
-  //     { cancelable: true }
-  //   );
-  // };
-
-
   const renderSupport = ({ item }: { item: Support }) => (
     <Card style={styles.card} mode="outlined">
       <Card.Title
-      title={'📝 Ticket #' + String(item.details[0].id).padStart(4, '0')}
+        title={
+          item.details?.[0]
+            ? '📝 Ticket #' + String(item.details[0].id).padStart(4, '0')
+            : '📝 Ticket sin detalle'
+        }
 
         subtitle={`Estado global: ${item.status_global}`}
         right={() => (
@@ -190,7 +164,6 @@ export default function SupportListScreen() {
                 setShowModal(true);
               }}
             />
-            {/* <IconButton icon="delete" onPress={() => handleDelete(item.id)} /> */}
           </View>
         )}
       />
@@ -202,7 +175,7 @@ export default function SupportListScreen() {
         {item.client?.dni && (
           <Text variant="labelSmall">🆔 DNI/CE: {item.client.dni}</Text>
         )}
-{item.client?.email && (
+        {item.client?.email && (
           <Text variant="labelSmall">Email: {item.client.email}</Text>
         )}
         <View style={{ alignItems: 'flex-end', marginTop: 0 }}>
@@ -235,10 +208,8 @@ export default function SupportListScreen() {
           </>
         )}
       </Card.Content>
-
     </Card>
   );
-
 
   function SectionTitle({ title }: { title: string }) {
     return <Text style={styles.sectionTitle}>{title}</Text>;

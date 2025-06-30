@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const api = axios.create({
-  baseURL: 'http://192.168.1.39:8000/api', // IP local del backend
+  baseURL: 'https://citas.laarboledahotel.com/api', // IP local del backend
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',

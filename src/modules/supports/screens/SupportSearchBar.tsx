@@ -10,8 +10,12 @@ export default function SupportSearchBar({ onSearch }: Props) {
   const [query, setQuery] = useState('');
 
   const handleSearch = () => {
-    if (query.trim() !== '') {
-      onSearch(query.trim());
+    const trimmed = query.trim();
+    console.log('🧪 Buscando con:', trimmed);
+    if (trimmed !== '') {
+      onSearch(trimmed);
+    } else {
+      console.log('⚠️ Entrada vacía, no se busca');
     }
   };
 
@@ -19,9 +23,12 @@ export default function SupportSearchBar({ onSearch }: Props) {
     <View style={styles.container}>
       <TextInput
         mode="outlined"
-        placeholder="Buscar por DNI, Razon Social o TK-0001"
+        placeholder="Buscar por DNI, Razón Social o TK-0001"
         value={query}
-        onChangeText={setQuery}
+        onChangeText={(text) => {
+          console.log('⌨️ Escribiendo:', text);
+          setQuery(text);
+        }}
         style={styles.input}
         onSubmitEditing={handleSearch}
         returnKeyType="search"

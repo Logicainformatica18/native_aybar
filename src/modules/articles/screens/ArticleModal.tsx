@@ -167,7 +167,7 @@ export default function ArticleModal({ open, onClose, onSaved, articleToEdit }: 
     handleChange('quanty', onlyNumbers);
   }}
   keyboardType="number-pad"
-  inputMode="numeric" // opcional para mejor soporte
+  inputMode="numeric" // opcional para mejor Solicitud
 />
 
           <TextInput

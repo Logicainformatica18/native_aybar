@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app-cargos",
-    "slug": "app-cargos",
+    "name": "Solicitudes App",
+    "slug": "Solicitudes App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icono_app.png",
@@ -17,14 +17,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icono_app.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.anthonycode.appcargos"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icono_app.png"
     },
     "extra": {
       "eas": {

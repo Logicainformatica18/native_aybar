@@ -67,23 +67,10 @@ export default function SupportListScreen() {
   useEffect(() => {
     loadSupports(1);
   }, []);
-const handleSearch = async (query: string) => {
-  if (!query.trim()) {
-    await loadSupports(1);
-    return;
-  }
 
-  setLoading(true);
-  try {
-    const results = await searchSupports(query);
-    setSupports(results); // 👈 Esto actualiza la lista correctamente
-    setPage(2);
-  } catch (error) {
-    console.error('❌ Error al buscar soportes:', error);
-  } finally {
-    setLoading(false);
-  }
-};
+
+
+
 
 
   const loadSupports = async (pageToLoad: number) => {
@@ -96,7 +83,7 @@ const handleSearch = async (query: string) => {
       setPage(data.current_page + 1);
       setLastPage(data.last_page);
     } catch (err) {
-      console.error('❌ Error al cargar soportes:', err);
+      console.error('❌ Error al cargar Solicituds:', err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -159,9 +146,28 @@ const handleSearch = async (query: string) => {
 
       await loadSupports(1);
     } catch (error) {
-      console.error('❌ Error al guardar soporte:', error);
+      console.error('❌ Error al guardar Solicitud:', error);
     }
   };
+
+  
+const handleSearch = async (query: string) => {
+  if (!query.trim()) {
+    await loadSupports(1); // volver a modo paginado
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const filteredSupports = await searchSupports(query); // ✅ ya retorna solo supports.data
+    setSupports(filteredSupports); // ✅ correcto ahora
+    setPage(9999); // para evitar que cargue más por onEndReached
+  } catch (error) {
+    console.error('❌ Error al buscar:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const renderSupport = ({ item }: { item: Support }) => (
    

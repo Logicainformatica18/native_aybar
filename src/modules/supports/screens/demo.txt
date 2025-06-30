@@ -24,7 +24,7 @@
         {item.area?.descripcion && <Text variant="labelSmall">📌 Área: {item.area.descripcion}</Text>}
         {item.internal_state?.description && <Text variant="labelSmall">🔒 Estado Interno: {item.internal_state.description}</Text>}
         {item.external_state?.description && <Text variant="labelSmall">🌐 Estado Externo: {item.external_state.description}</Text>}
-        {item.support_type?.description && <Text variant="labelSmall">📂 Tipo Soporte: {item.support_type.description}</Text>}
+        {item.support_type?.description && <Text variant="labelSmall">📂 Tipo Solicitud: {item.support_type.description}</Text>}
         {item.type_id && <Text variant="labelSmall">🔖 Tipo Catálogo: {item.type_id}</Text>}
         {item.reservation_time && <Text variant="labelSmall">📅 Reserva: {item.reservation_time}</Text>}
         {item.attended_at && <Text variant="labelSmall">✅ Atendido: {item.attended_at}</Text>}

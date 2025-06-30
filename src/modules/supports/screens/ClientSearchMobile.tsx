@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   TextInput,
@@ -6,7 +6,7 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
-import axios from '@/config/axios'; // Asegúrate que apunte bien
+import axios from '@/config/axios';
 
 interface Client {
   id: number;
@@ -25,9 +25,9 @@ const ClientSearchMobile: React.FC<Props> = ({ onClientSelected }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Client[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null); // ⏱️ para controlar el debounce
 
   const fetchClients = async (text: string) => {
-    setQuery(text);
     if (text.length < 2) {
       setResults([]);
       setShowDropdown(false);
@@ -44,6 +44,20 @@ const ClientSearchMobile: React.FC<Props> = ({ onClientSelected }) => {
     }
   };
 
+  const handleChangeText = (text: string) => {
+    setQuery(text);
+
+    // Limpiar el anterior timeout
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    // Esperar 500ms antes de hacer la búsqueda
+    debounceRef.current = setTimeout(() => {
+      fetchClients(text);
+    }, 500);
+  };
+
   const handleSelect = (client: Client) => {
     setQuery(client.names);
     setShowDropdown(false);
@@ -55,7 +69,7 @@ const ClientSearchMobile: React.FC<Props> = ({ onClientSelected }) => {
       <Text style={styles.label}>Cliente</Text>
       <TextInput
         value={query}
-        onChangeText={fetchClients}
+        onChangeText={handleChangeText}
         placeholder="Buscar cliente por nombre o DNI"
         style={styles.input}
       />
@@ -63,7 +77,11 @@ const ClientSearchMobile: React.FC<Props> = ({ onClientSelected }) => {
       {showDropdown && results.length > 0 && (
         <View style={styles.dropdownContainer}>
           {results.map((item) => (
-            <TouchableOpacity key={item.id} onPress={() => handleSelect(item)} style={styles.dropdownItem}>
+            <TouchableOpacity
+              key={item.id}
+              onPress={() => handleSelect(item)}
+              style={styles.dropdownItem}
+            >
               <Text style={styles.dropdownItemText}>
                 {item.names} ({item.dni})
               </Text>
@@ -76,6 +94,7 @@ const ClientSearchMobile: React.FC<Props> = ({ onClientSelected }) => {
 };
 
 export default ClientSearchMobile;
+
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -102,7 +121,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 6,
     marginTop: 4,
-    maxHeight: 150,
+    maxHeight: 300,
     overflow: 'scroll',
   },
   dropdownItem: {

@@ -11,12 +11,33 @@ async function getAuthHeaders(contentType = 'application/json') {
   };
 }
 
-// === Soportes ===
+
 export async function searchSupports(query: string): Promise<Support[]> {
   const headers = await getAuthHeaders();
-  const res = await axios.get(`/supports/fetch?q=${encodeURIComponent(query)}`, { headers });
-  return res.data?.supports?.data ?? []; // <--- importante acceder a `.data`
+
+  try {
+    const res = await axios.get(`/supports/fetch?q=${encodeURIComponent(query)}`, { headers });
+
+    console.log('🔍 [FULL] res.data:', res.data);
+
+    if (!res.data || !res.data.supports || !res.data.supports.data) {
+      console.warn('⚠️ No hay resultados válidos');
+      return [];
+    }
+
+    const supports = res.data.supports.data;
+    console.log(`✅ supports.data (${supports.length} resultados):`, supports);
+
+    return supports;
+  } catch (err: any) {
+    console.error('❌ Error en searchSupports:', err.message, err.response?.data);
+    return [];
+  }
 }
+
+
+
+
 
 
 export async function fetchPaginatedSupports(page = 1) {

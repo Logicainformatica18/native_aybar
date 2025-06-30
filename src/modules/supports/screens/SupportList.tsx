@@ -16,16 +16,14 @@ import {
   Divider,
 } from 'react-native-paper';
 import { Alert } from 'react-native';
-import { LayoutAnimation, Platform, UIManager } from 'react-native';
+import { LayoutAnimation } from 'react-native';
 import DashboardLayout from '../../layouts/template';
 import SupportModal from './SupportModal';
-import { Support } from '@/types/supports';
 import { Option } from '@/types/option';
 import {
   fetchPaginatedSupports,
   createSupport,
   updateSupport,
-  deleteSupport,
   fetchAreas,
   fetchClients,
   fetchProjects,
@@ -36,6 +34,9 @@ import {
   fetchExternalStates,
   fetchTypes,
 } from '@/modules/supports/services/supportService';
+import { Support } from '@/types/supports';
+import SupportSearchBar from './SupportSearchBar';
+import { searchSupports } from '@/modules/supports/services/supportService';
 
 export default function SupportListScreen() {
   const [supports, setSupports] = useState<Support[]>([]);
@@ -66,6 +67,24 @@ export default function SupportListScreen() {
   useEffect(() => {
     loadSupports(1);
   }, []);
+const handleSearch = async (query: string) => {
+  if (!query.trim()) {
+    await loadSupports(1);
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const results = await searchSupports(query);
+    setSupports(results); // 👈 Esto actualiza la lista correctamente
+    setPage(2);
+  } catch (error) {
+    console.error('❌ Error al buscar soportes:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const loadSupports = async (pageToLoad: number) => {
     if (loadingMore || pageToLoad > lastPage) return;
@@ -87,35 +106,35 @@ export default function SupportListScreen() {
   const loadSupportOptions = async () => {
     try {
       const [
-        areaData,
-        clientData,
+      //  areaData,
+     //   clientData,
         projectData,
-        motivoData,
-        tipoData,
-        esperaData,
-        internalStateData,
-        externalStateData,
-        typeData,
+        // motivoData,
+        // tipoData,
+        // esperaData,
+        // internalStateData,
+        // externalStateData,
+        // typeData,
       ] = await Promise.all([
-        fetchAreas(),
-        fetchClients(),
+     //   fetchAreas(),
+       // fetchClients(),
         fetchProjects(),
-        fetchMotivosCita(),
-        fetchTiposCita(),
-        fetchDiasEspera(),
-        fetchInternalStates(),
-        fetchExternalStates(),
-        fetchTypes(),
+        // fetchMotivosCita(),
+        // fetchTiposCita(),
+        // fetchDiasEspera(),
+        // fetchInternalStates(),
+        // fetchExternalStates(),
+        // fetchTypes(),
       ]);
-      setAreas(areaData);
-      setClients(clientData);
+    //  setAreas(areaData);
+     // setClients(clientData);
       setProjects(projectData);
-      setMotivosCita(motivoData);
-      setTiposCita(tipoData);
-      setDiasEspera(esperaData);
-      setInternalStates(internalStateData);
-      setExternalStates(externalStateData);
-      setTypes(typeData);
+      // setMotivosCita(motivoData);
+      // setTiposCita(tipoData);
+      // setDiasEspera(esperaData);
+      // setInternalStates(internalStateData);
+      // setExternalStates(externalStateData);
+      // setTypes(typeData);
     } catch (err) {
       console.error('❌ Error al cargar opciones:', err);
     }
@@ -145,28 +164,33 @@ export default function SupportListScreen() {
   };
 
   const renderSupport = ({ item }: { item: Support }) => (
+   
+   
+
     <Card style={styles.card} mode="outlined">
+
       <Card.Title
         title={
           item.details?.[0]
             ? '📝 Ticket #' + String(item.details[0].id).padStart(4, '0')
             : '📝 Ticket sin detalle'
         }
-
         subtitle={`Estado global: ${item.status_global}`}
-        right={() => (
-          <View style={{ flexDirection: 'row' }}>
-            <IconButton
-              icon="pencil"
-              onPress={async () => {
-                await loadSupportOptions();
-                setSupportToEdit(item);
-                setShowModal(true);
-              }}
-            />
-          </View>
-        )}
+        // right={() => (
+        //   <View style={{ flexDirection: 'row' }}>
+        //     <IconButton
+        //       icon="pencil"
+        //       onPress={async () => {
+        //         await loadSupportOptions();
+        //         setSupportToEdit(item);
+        //         setShowModal(true);
+        //       }}
+        //     />
+        //   </View>
+        // )}
+        
       />
+      
       <Card.Content>
         <SectionTitle title="Cliente" />
         {item.client?.Razon_Social && (
@@ -176,7 +200,7 @@ export default function SupportListScreen() {
           <Text variant="labelSmall">🆔 DNI/CE: {item.client.dni}</Text>
         )}
         {item.client?.email && (
-          <Text variant="labelSmall">Email: {item.client.email}</Text>
+          <Text variant="labelSmall">📧 Email: {item.client.email}</Text>
         )}
         <View style={{ alignItems: 'flex-end', marginTop: 0 }}>
           <IconButton
@@ -209,6 +233,7 @@ export default function SupportListScreen() {
         )}
       </Card.Content>
     </Card>
+    
   );
 
   function SectionTitle({ title }: { title: string }) {
@@ -224,7 +249,9 @@ export default function SupportListScreen() {
           {loading ? (
             <ActivityIndicator animating={true} size="large" color={colors.primary} />
           ) : (
-            <FlatList
+            <>
+             <SupportSearchBar onSearch={handleSearch} />
+               <FlatList
               data={supports}
               keyExtractor={(item) => item.id.toString()}
               renderItem={renderSupport}
@@ -234,7 +261,11 @@ export default function SupportListScreen() {
               ListFooterComponent={
                 loadingMore ? <ActivityIndicator size="small" color={colors.primary} /> : null
               }
+              
             />
+            </>
+          
+            
           )}
         </SafeAreaView>
 

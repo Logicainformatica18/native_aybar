@@ -12,6 +12,12 @@ async function getAuthHeaders(contentType = 'application/json') {
 }
 
 // === Soportes ===
+export async function searchSupports(query: string): Promise<Support[]> {
+  const headers = await getAuthHeaders();
+  const res = await axios.get(`/supports/fetch?q=${encodeURIComponent(query)}`, { headers });
+  return res.data?.supports?.data ?? []; // <--- importante acceder a `.data`
+}
+
 
 export async function fetchPaginatedSupports(page = 1) {
   const headers = await getAuthHeaders();
@@ -48,7 +54,7 @@ export async function fetchAreas(): Promise<Option[]> {
   const headers = await getAuthHeaders();
   const res = await axios.get('/areas', { headers });
   const data = res.data?.data ?? res.data;
-    console.log('📦 fetchAreas response:', res.data); // 🧪 Verifica estructura
+   
   if (!Array.isArray(data)) throw new Error('fetchAreas: respuesta inesperada');
   return data.map((a: any) => ({ id: a.id_area, name: a.descripcion }));
 }

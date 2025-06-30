@@ -44,6 +44,7 @@ export default function SupportModal({
   onClose,
   onSaved,
   supportToEdit,
+
   areas,
   clients,
   projects,
@@ -55,6 +56,7 @@ export default function SupportModal({
   types,
 }: Props) {
   const { colors } = useTheme();
+  
   const [formData, setFormData] = useState<SupportFormData>({
     subject: '',
     description: '',
@@ -86,29 +88,10 @@ export default function SupportModal({
   useEffect(() => {
     if (supportToEdit) {
       setFormData({
-        subject: '',
-        description: '',
-        priority: 'Normal',
-        type: 'Consulta',
-        status: 'Pendiente',
-        reservation_time: '',
-        attended_at: '',
-        derived: '',
-        cellphone: supportToEdit.cellphone || '',
-        Manzana: '',
-        Lote: '',
-        client_id: supportToEdit.client_id,
+        ...supportToEdit,
         dni: supportToEdit.client?.dni || '',
         email: supportToEdit.client?.email || '',
         address: supportToEdit.client?.direccion || '',
-        project_id: null,
-        area_id: null,
-        id_motivos_cita: null,
-        id_tipo_cita: null,
-        id_dia_espera: null,
-        internal_state_id: null,
-        external_state_id: null,
-        type_id: null,
       });
     } else {
       setFormData({
@@ -241,6 +224,13 @@ export default function SupportModal({
             <TextInput label="Dirección" value={formData.address} onChangeText={(value) => handleChange('address', value)} style={styles.input} />
 
             {renderPicker('Proyecto', 'project_id', projects)}
+            {/* {renderPicker('Área', 'area_id', areas)} */}
+            {/* {renderPicker('Motivo de Cita', 'id_motivos_cita', motivosCita)}
+            {renderPicker('Tipo de Cita', 'id_tipo_cita', tiposCita)}
+            {renderPicker('Día de Espera', 'id_dia_espera', diasEspera)}
+            {renderPicker('Estado Interno', 'internal_state_id', internalStates)}
+            {renderPicker('Estado Externo', 'external_state_id', externalStates)}
+            {renderPicker('Tipo', 'type_id', types)} */}
 
             <Text style={styles.label}>Prioridad</Text>
             <Picker

@@ -3,8 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { Provider as PaperProvider } from 'react-native-paper'; // ✅ Agregado
-import { SafeAreaProvider } from 'react-native-safe-area-context'; // ✅ Recomendadopedal whawha evh
+import { Provider as PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import LoginScreen from './src/modules/users/screens/LoginScreen';
 import UserListScreen from './src/modules/users/screens/UserList';
@@ -12,22 +12,33 @@ import TransferListScreen from '@/modules/transfers/screens/TransferList';
 import ProductListScreen from '@/modules/products/screens/ProductList';
 import ArticleList from '@/modules/articles/screens/ArticleList';
 import SupportListScreen from '@/modules/supports/screens/SupportList';
-
-
 import LogoutScreen from './src/modules/users/screens/LogoutScreen';
 
 import { RootStackParamList } from '@/types/navigation';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
-const Drawer = createDrawerNavigator();
-
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { View, Image } from 'react-native';
-import { BASE_SRC } from '@/config/constants'; // usa la ruta que tengas para el logo
+import { BASE_SRC } from '@/config/constants';
 
-// ✅ Drawer con logo e íconos
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Drawer = createDrawerNavigator();
+
+// 🎨 Tema claro forzado
+const customLightTheme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: '#03424E',
+    background: '#fefefe',
+    surface: '#ffffff',
+    onSurface: '#000000',
+    text: '#000000',
+  },
+};
+
+// 📦 Drawer con logo
 function CustomDrawerContent(props: any) {
   return (
     <DrawerContentScrollView {...props}>
@@ -42,6 +53,7 @@ function CustomDrawerContent(props: any) {
   );
 }
 
+// 🧭 Navegador del Drawer
 function DrawerRoutes() {
   return (
     <Drawer.Navigator
@@ -52,7 +64,6 @@ function DrawerRoutes() {
         drawerLabelStyle: { marginLeft: -5 },
       }}
     >
-    
       <Drawer.Screen
         name="Solicitudes"
         component={SupportListScreen}
@@ -62,15 +73,7 @@ function DrawerRoutes() {
           ),
         }}
       />
-        {/* <Drawer.Screen
-        name="Usuarios"
-        component={UserListScreen}
-        options={{
-          drawerIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account-group" size={size} color={color} />
-          ),
-        }}
-      /> */}
+      {/* Puedes activar más rutas aquí si deseas */}
       <Drawer.Screen
         name="Cerrar Sesión"
         component={LogoutScreen}
@@ -84,12 +87,11 @@ function DrawerRoutes() {
   );
 }
 
-
+// 🚀 App principal
 export default function App() {
   return (
- 
     <SafeAreaProvider>
-      <PaperProvider>
+      <PaperProvider theme={customLightTheme}>
         <AuthProvider>
           <NavigationContainer>
             <AppNavigator />
@@ -100,7 +102,7 @@ export default function App() {
   );
 }
 
-// Mantén esta función como está
+// 🧭 Stack de navegación principal
 function AppNavigator() {
   const { token, loading } = useAuth();
 

@@ -229,7 +229,7 @@ const handleSearch = async (query: string) => {
                 <Text variant="labelSmall">⚙ Estado: {detail.status}</Text>
                 <Text variant="labelSmall">🎯 Prioridad: {detail.priority}</Text>
                 <Text variant="labelSmall">📦 Manzana: {detail.Manzana}</Text>
-                <Text variant="labelSmall">📦 Lote: {detail.Lote}</Text>
+                <Text variant="labelSmall">📦 comment: {detail.comment}</Text>
                 <Text variant="labelSmall">📅 Reserva: {detail.reservation_time ?? '-'}</Text>
                 <Text variant="labelSmall">📅 Atendido: {detail.attended_at ?? '-'}</Text>
                 <Divider style={styles.divider} />

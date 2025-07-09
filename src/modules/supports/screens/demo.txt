@@ -15,7 +15,7 @@
         {item.motivo_cita?.nombre_motivo && <Text variant="labelSmall">✏️ Motivo: {item.motivo_cita.nombre_motivo}</Text>}
         {item.dia_espera?.dias != null && <Text variant="labelSmall">⏳ Días Espera: {item.dia_espera.dias}</Text>}
         {item.Manzana && <Text variant="labelSmall">🧩 Manzana: {item.Manzana}</Text>}
-        {item.Lote && <Text variant="labelSmall">🧩 Lote: {item.Lote}</Text>}
+        {item.comment && <Text variant="labelSmall">🧩 comment: {item.comment}</Text>}
 
         <Divider style={styles.divider} />
 

@@ -69,7 +69,7 @@ export default function SupportModal({
     derived: '',
     cellphone: '',
     Manzana: '',
-    Lote: '',
+    comment: '',
     client_id: null,
 
     dni: '',
@@ -108,7 +108,7 @@ export default function SupportModal({
         derived: '',
         cellphone: '',
         Manzana: '',
-        Lote: '',
+        comment: '',
         client_id: null,
         dni: '',
         email: '',
@@ -158,7 +158,7 @@ export default function SupportModal({
         external_state_id: formData.external_state_id,
         type_id: formData.type_id,
         Manzana: formData.Manzana,
-        Lote: formData.Lote,
+        comment: formData.comment,
       },
     ];
 
@@ -225,7 +225,7 @@ export default function SupportModal({
                     address: client.address,
                     project_id: null,
                     Manzana: '',
-                    Lote: '',
+                    comment: '',
                   }));
                   setClientSales(client.sales || []); // ✅ necesario para filtrar luego
                 }}
@@ -335,9 +335,9 @@ export default function SupportModal({
                       handleChange('Manzana', value);
                       const parts = value.split('-');
                       if (parts.length === 2) {
-                        handleChange('Lote', parts[1]); // autocompleta Lote
+                        handleChange('comment', parts[1]); // autocompleta Lote
                       } else {
-                        handleChange('Lote', '');
+                        handleChange('comment', '');
                       }
                     }}
                     style={styles.select}
@@ -370,6 +370,7 @@ export default function SupportModal({
                 <Picker.Item label="Media" value="Media" />
                 <Picker.Item label="Baja" value="Baja" />
               </Picker>
+          
             </View>
 
             {/* ✅ Botones */}

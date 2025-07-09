@@ -32,7 +32,7 @@ export interface SupportDetail {
   attended_at?: string;
   derived?: string;
   Manzana?: string;
-  Lote?: string;
+  comment?: string;
   attachment?: string;
 
   project_id?: number | null;
@@ -93,7 +93,7 @@ export interface SupportFormData {
   attended_at?: string;
   derived?: string;
   Manzana?: string;
-  Lote?: string;
+  comment?: string;
 
   project_id?: number | null;
   area_id?: number | null;

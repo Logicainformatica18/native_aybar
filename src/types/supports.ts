@@ -1,11 +1,24 @@
-export interface Client {
+interface Sale {
+  id: number;
+  id_cliente: number;
+  project_id: number;
+  mz_lote: string;
+  project: {
+    id_proyecto: number;
+    descripcion: string;
+  };
+}
+
+interface Client {
   id: number;
   dni: string;
+  names: string;
   cellphone: string;
   email: string;
   address: string;
-  Razon_Social?: string;
+  sales: Sale[]; // ✅ nueva propiedad
 }
+
 
 export interface SupportDetail {
   id?: number;

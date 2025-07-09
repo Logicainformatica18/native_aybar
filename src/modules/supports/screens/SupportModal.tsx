@@ -61,7 +61,7 @@ export default function SupportModal({
   const [formData, setFormData] = useState<SupportFormData>({
     subject: '',
     description: '',
-    priority: 'Normal',
+    priority: 'Baja',
     type: 'Consulta',
     status: 'Pendiente',
     reservation_time: '',
@@ -71,6 +71,7 @@ export default function SupportModal({
     Manzana: '',
     Lote: '',
     client_id: null,
+
     dni: '',
     email: '',
     address: '',
@@ -85,6 +86,7 @@ export default function SupportModal({
   });
 
   const [loading, setLoading] = useState(false);
+  const [clientSales, setClientSales] = useState<any[]>([]);
 
   useEffect(() => {
     if (supportToEdit) {
@@ -98,7 +100,7 @@ export default function SupportModal({
       setFormData({
         subject: '',
         description: '',
-        priority: 'Normal',
+        priority: 'Baja',
         type: 'Consulta',
         status: 'Pendiente',
         reservation_time: '',
@@ -188,63 +190,76 @@ export default function SupportModal({
       </Picker>
     </>
   );
+  // 🔎 IDs de proyectos del cliente
+  const projectIdsFromSales = clientSales.map((s) => s.project_id);
+
+  // 🔁 Proyectos disponibles solo para este cliente
+  const filteredProjects = projects.filter((p) =>
+    projectIdsFromSales.includes(p.id)
+  );
+
 
   return (
-<Portal>
-  <Dialog visible={open} onDismiss={onClose} style={{ maxHeight: '95%' }}>
-    <Dialog.ScrollArea>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Title style={{ marginBottom: 12 }}>
-          {supportToEdit ? 'Editar Solicitud' : 'Nueva Solicitud'}
-        </Title>
+    <Portal>
+      <Dialog visible={open} onDismiss={onClose} style={{ maxHeight: '95%' }}>
+        <Dialog.ScrollArea>
+          <ScrollView contentContainerStyle={styles.container}>
+            <Title style={{ marginBottom: 12 }}>
+              {supportToEdit ? 'Editar Solicitud' : 'Nueva Solicitud'}
+            </Title>
 
-        {/* 🔵 Sección: Datos del Cliente */}
-        <View style={[styles.section, { backgroundColor: '#f5f7fa' }]}>
-          <Text style={styles.sectionTitle}>
-            <MaterialCommunityIcons name="account-box-outline" size={18} /> Datos del Cliente
-          </Text>
+            {/* 🔵 Sección: Datos del Cliente */}
+            <View style={[styles.section, { backgroundColor: '#f5f7fa' }]}>
+              <Text style={styles.sectionTitle}>
+                <MaterialCommunityIcons name="account-box-outline" size={18} /> Datos del Cliente
+              </Text>
 
-          <ClientSearchMobile
-            onClientSelected={(client) => {
-              setFormData((prev) => ({
-                ...prev,
-                client_id: client.id,
-                dni: client.dni,
-                cellphone: client.cellphone,
-                email: client.email,
-                address: client.address,
-              }));
-            }}
-          />
+              <ClientSearchMobile
+                onClientSelected={(client) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    client_id: client.id,
+                    dni: client.dni,
+                    cellphone: client.cellphone,
+                    email: client.email,
+                    address: client.address,
+                    project_id: null,
+                    Manzana: '',
+                    Lote: '',
+                  }));
+                  setClientSales(client.sales || []); // ✅ necesario para filtrar luego
+                }}
+              />
 
-          <TextInput
-            placeholder="DNI"
-            value={formData.dni}
-            onChangeText={(value) => handleChange('dni', value)}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Celular"
-            value={formData.cellphone}
-            onChangeText={(value) => handleChange('cellphone', value)}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Email"
-            value={formData.email}
-            onChangeText={(value) => handleChange('email', value)}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Dirección"
-            value={formData.address}
-            onChangeText={(value) => handleChange('address', value)}
-            style={styles.input}
-          />
-        </View>
 
-        {/* 🟡 Sección: Estado Global */}
-        {/* <View style={[styles.section, { backgroundColor: '#fdecea', borderColor: '#f44336' }]}>
+              <TextInput
+                placeholder="DNI"
+                value={formData.dni}
+                onChangeText={(value) => handleChange('dni', value)}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Celular"
+                value={formData.cellphone}
+                onChangeText={(value) => handleChange('cellphone', value)}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Email"
+                value={formData.email}
+                onChangeText={(value) => handleChange('email', value)}
+                style={styles.input}
+              />
+              <TextInput
+                placeholder="Dirección"
+                value={formData.address}
+                onChangeText={(value) => handleChange('address', value)}
+                style={styles.input}
+              />
+            </View>
+
+            {/* 🟡 Sección: Estado Global */}
+            {/* <View style={[styles.section, { backgroundColor: '#fdecea', borderColor: '#f44336' }]}>
           <Text style={[styles.sectionTitle, { color: '#c62828' }]}>
             <MaterialCommunityIcons name="alert" size={18} /> Estado Global
           </Text>
@@ -266,77 +281,111 @@ export default function SupportModal({
           </Picker>
         </View> */}
 
-        {/* 🟦 Sección: Detalle de Solicitud */}
-        <View style={[styles.section, { backgroundColor: '#eaf8fa' }]}>
-          <Text style={[styles.sectionTitle, { color: '#9c6b00' }]}>
-            <MaterialCommunityIcons name="file-document-outline" size={18} /> Detalle de Solicitud
-          </Text>
+            {/* 🟦 Sección: Detalle de Solicitud */}
+            <View style={[styles.section, { backgroundColor: '#eaf8fa' }]}>
+              <Text style={[styles.sectionTitle, { color: '#9c6b00' }]}>
+                <MaterialCommunityIcons name="file-document-outline" size={18} /> Detalle de Solicitud
+              </Text>
 
-          <TextInput
-            placeholder="Asunto"
-            value={formData.subject || ''}
-            onChangeText={(text) => handleChange('subject', text)}
-            style={styles.input}
-          />
+              <Text style={styles.label}>Asunto</Text>
+              <Picker
+                selectedValue={formData.subject}
+                onValueChange={(value) => handleChange('subject', value)}
+                style={styles.select}
+              >
+                <Picker.Item label="Seleccione un asunto" value="" />
+                <Picker.Item label="Boletas" value="Boletas" />
+                <Picker.Item label="EE.CC" value="EE.CC" />
+                <Picker.Item label="Pagos" value="Pagos" />
+                <Picker.Item label="Recojo de Letras" value="Recojo de Letras" />
+                <Picker.Item label="Información de su lote" value="Información de su lote" />
+                <Picker.Item label="Avance de Proyecto" value="Avance de Proyecto" />
+                <Picker.Item label="Desestimiento" value="Desestimiento" />
+                <Picker.Item label="Traspaso de aportes" value="Traspaso de aportes" />
+                <Picker.Item label="Cesión" value="Cesion" />
+                <Picker.Item label="Constancia de no adeudo" value="Constancia de no adeudo" />
+                <Picker.Item label="Certificado de lote" value="Certificado de lote" />
+                <Picker.Item label="Recojo de contrato" value="Recojo de contrato" />
+                <Picker.Item label="Formalización" value="Formalización" />
+                <Picker.Item label="Cita con legal" value="Cita con legal" />
+                <Picker.Item label="Visita a proyecto" value="Visita a proyecto" />
+              </Picker>
 
-          <TextInput
-            label="Descripción"
-            value={formData.description || ''}
-            onChangeText={(text) => handleChange('description', text)}
-            multiline
-            numberOfLines={4}
-            style={[styles.input, styles.textArea]}
-          />
 
-          {renderPicker('Proyecto', 'project_id', projects)}
+              <TextInput
+                label="Descripción"
+                value={formData.description || ''}
+                onChangeText={(text) => handleChange('description', text)}
+                multiline
+                numberOfLines={4}
+                style={[styles.input, styles.textArea]}
+              />
 
-          <Text style={styles.label}>Prioridad</Text>
-          <Picker
-            selectedValue={formData.priority}
-            onValueChange={(itemValue) => handleChange('priority', itemValue)}
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: 6,
-              borderColor: '#ccc',
-              borderWidth: 1,
-              marginBottom: 8,
-              color: '#000',
-            }}
-          >
-            <Picker.Item label="Urgente" value="Urgente" />
-            <Picker.Item label="Moderado" value="Moderado" />
-            <Picker.Item label="Normal" value="Normal" />
-            <Picker.Item label="Baja Prioridad" value="Baja Prioridad" />
-          </Picker>
+              {renderPicker('Proyecto', 'project_id', filteredProjects)}
 
-          <TextInput
-            label="Manzana"
-            value={formData.Manzana || ''}
-            onChangeText={(text) => handleChange('Manzana', text)}
-            style={styles.input}
-          />
-          <TextInput
-            label="Lote"
-            value={formData.Lote || ''}
-            onChangeText={(text) => handleChange('Lote', text)}
-            style={styles.input}
-          />
-        </View>
 
-        {/* ✅ Botones */}
-        <View style={styles.actions}>
-          <Button mode="outlined" onPress={onClose} style={styles.actionButton}>
-            Cancelar
-          </Button>
-          <Button mode="contained" onPress={handleSubmit} style={styles.actionButton}>
-            Guardar
-          </Button>
-        </View>
-      </ScrollView>
-    </Dialog.ScrollArea>
-  </Dialog>
-  <HourglassLoader visible={loading} />
-</Portal>
+
+
+              {formData.project_id && (
+                <>
+                  <Text style={styles.label}>Manzana / Lote</Text>
+                  <Picker
+                    selectedValue={formData.Manzana}
+                    onValueChange={(value) => {
+                      handleChange('Manzana', value);
+                      const parts = value.split('-');
+                      if (parts.length === 2) {
+                        handleChange('Lote', parts[1]); // autocompleta Lote
+                      } else {
+                        handleChange('Lote', '');
+                      }
+                    }}
+                    style={styles.select}
+                  >
+                    <Picker.Item label="Seleccione manzana/lote" value="" />
+                    {[...new Set(
+                      clientSales
+                        .filter((sale) => sale.project_id === formData.project_id)
+                        .map((sale) => sale.mz_lote)
+                    )].map((mz, index) => (
+                      <Picker.Item key={index} label={mz} value={mz} />
+                    ))}
+                  </Picker>
+                </>
+              )}
+              <Text style={styles.label}>Prioridad</Text>
+              <Picker
+                selectedValue={formData.priority}
+                onValueChange={(itemValue) => handleChange('priority', itemValue)}
+                style={{
+                  backgroundColor: '#fff',
+                  borderRadius: 6,
+                  borderColor: '#ccc',
+                  borderWidth: 1,
+                  marginBottom: 8,
+                  color: '#000',
+                }}
+              >
+                <Picker.Item label="Alta" value="Alta" />
+                <Picker.Item label="Media" value="Media" />
+                <Picker.Item label="Baja" value="Baja" />
+              </Picker>
+            </View>
+
+            {/* ✅ Botones */}
+            <View style={styles.actions}>
+              <Button mode="outlined" onPress={onClose} style={styles.actionButton}>
+                Cancelar
+              </Button>
+              <Button mode="contained" onPress={handleSubmit} style={styles.actionButton}>
+                Guardar
+              </Button>
+            </View>
+          </ScrollView>
+        </Dialog.ScrollArea>
+      </Dialog>
+      <HourglassLoader visible={loading} />
+    </Portal>
 
   );
 }
@@ -389,8 +438,8 @@ const styles = StyleSheet.create({
     height: 50,
     textAlignVertical: 'top',
   },
- 
-  
+
+
   section: {
     borderRadius: 8,
     padding: 16,
@@ -405,5 +454,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-   
+
 });

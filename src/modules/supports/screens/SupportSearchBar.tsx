@@ -4,9 +4,10 @@ import { TextInput, IconButton } from 'react-native-paper';
 
 interface Props {
   onSearch: (query: string) => void;
+  onClear?: () => void; // ✅ opcional, para recargar todo si query está vacío
 }
 
-export default function SupportSearchBar({ onSearch }: Props) {
+export default function SupportSearchBar({ onSearch, onClear }: Props) {
   const [query, setQuery] = useState('');
 
   const handleSearch = () => {
@@ -16,6 +17,16 @@ export default function SupportSearchBar({ onSearch }: Props) {
       onSearch(trimmed);
     } else {
       console.log('⚠️ Entrada vacía, no se busca');
+      onClear?.(); // ✅ al presionar buscar con vacío, también puedes recargar
+    }
+  };
+
+  const handleChangeText = (text: string) => {
+    console.log('⌨️ Escribiendo:', text);
+    setQuery(text);
+
+    if (text.trim() === '') {
+      onClear?.(); // ✅ si se vacía el input, recarga la lista
     }
   };
 
@@ -25,10 +36,7 @@ export default function SupportSearchBar({ onSearch }: Props) {
         mode="outlined"
         placeholder="Buscar por DNI, Razón Social o TK-0001"
         value={query}
-        onChangeText={(text) => {
-          console.log('⌨️ Escribiendo:', text);
-          setQuery(text);
-        }}
+        onChangeText={handleChangeText}
         style={styles.input}
         onSubmitEditing={handleSearch}
         returnKeyType="search"

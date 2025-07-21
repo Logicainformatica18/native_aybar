@@ -16,24 +16,24 @@ export async function searchSupports(query: string): Promise<Support[]> {
   const headers = await getAuthHeaders();
 
   try {
-    const res = await axios.get(`/supports/fetch?q=${encodeURIComponent(query)}`, { headers });
+    const res = await axios.get(`/supports/search?q=${encodeURIComponent(query)}`, { headers });
 
-    console.log('🔍 [FULL] res.data:', res.data);
 
-    if (!res.data || !res.data.supports || !res.data.supports.data) {
-      console.warn('⚠️ No hay resultados válidos');
-      return [];
+    const results: Support[] = res.data.supports?.data ?? [];
+
+    if (results.length > 0) {
+      console.log(`🔍 Se encontraron ${results.length} resultados para: "${query}"`);
+    } else {
+      console.warn(`⚠️ No se encontró ningún resultado para: "${query}"`);
     }
 
-    const supports = res.data.supports.data;
-    console.log(`✅ supports.data (${supports.length} resultados):`, supports);
-
-    return supports;
+    return results;
   } catch (err: any) {
-    console.error('❌ Error en searchSupports:', err.message, err.response?.data);
+    console.error('❌ Error en searchSupports:', err.message);
     return [];
   }
 }
+
 
 
 

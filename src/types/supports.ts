@@ -1,4 +1,4 @@
-interface Sale {
+export interface Sale {
   id: number;
   id_cliente: number;
   project_id: number;
@@ -9,16 +9,15 @@ interface Sale {
   };
 }
 
-interface Client {
+export interface Client {
   id: number;
   dni: string;
   names: string;
   cellphone: string;
   email: string;
   address: string;
-  sales: Sale[]; // ✅ nueva propiedad
+  sales: Sale[];
 }
-
 
 export interface SupportDetail {
   id?: number;
@@ -35,6 +34,17 @@ export interface SupportDetail {
   comment?: string;
   attachment?: string;
 
+  // Nuevos campos añadidos
+  ticket?: string; // TK-00001
+  ticketTr?: string; // TR-00001 (opcional, como string si lo necesitas)
+  channel?: string; // Canal de atención (whatsapp, call_center, etc.)
+  last_comment?: {
+    internal_state?: {
+      description: string;
+    };
+  };
+
+  // Relaciones
   project_id?: number | null;
   area_id?: number | null;
   id_motivos_cita?: number | null;
@@ -44,14 +54,13 @@ export interface SupportDetail {
   external_state_id?: number | null;
   type_id?: number | null;
 
-  // Relaciones (opcional, si las necesitas para mostrar)
   project?: { descripcion: string };
   area?: { descripcion: string };
   motivoCita?: { nombre_motivo: string };
   tipoCita?: { tipo: string };
   diaEspera?: { dias: string };
-  internalState?: { description: string };
-  externalState?: { description: string };
+ internal_state?: { description: string };
+external_state?: { description: string };
   supportType?: { description: string };
 }
 
@@ -65,17 +74,15 @@ export interface Support {
   created_at?: string;
   updated_at?: string;
 
-  // Relaciones
   client?: Client;
   creator?: { id: number; firstname: string; lastname: string; names: string; email?: string };
-
   details?: SupportDetail[];
 }
 
 export interface SupportFormData {
   id?: number;
 
-  // Datos generales (de supports)
+  // Datos generales
   client_id: number | null;
   cellphone: string;
   status_global?: string;
@@ -83,7 +90,7 @@ export interface SupportFormData {
   email: string;
   address: string;
 
-  // Datos del detalle (support_details)
+  // Datos del detalle
   subject: string;
   description: string;
   priority: string;
@@ -94,6 +101,7 @@ export interface SupportFormData {
   derived?: string;
   Manzana?: string;
   comment?: string;
+  channel?: string; // Canal (agregado)
 
   project_id?: number | null;
   area_id?: number | null;

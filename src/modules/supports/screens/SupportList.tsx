@@ -93,8 +93,8 @@ export default function SupportListScreen() {
   const loadSupportOptions = async () => {
     try {
       const [
-      //  areaData,
-     //   clientData,
+        //  areaData,
+        //   clientData,
         projectData,
         // motivoData,
         // tipoData,
@@ -103,8 +103,8 @@ export default function SupportListScreen() {
         // externalStateData,
         // typeData,
       ] = await Promise.all([
-     //   fetchAreas(),
-       // fetchClients(),
+        //   fetchAreas(),
+        // fetchClients(),
         fetchProjects(),
         // fetchMotivosCita(),
         // fetchTiposCita(),
@@ -113,8 +113,8 @@ export default function SupportListScreen() {
         // fetchExternalStates(),
         // fetchTypes(),
       ]);
-    //  setAreas(areaData);
-     // setClients(clientData);
+      //  setAreas(areaData);
+      // setClients(clientData);
       setProjects(projectData);
       // setMotivosCita(motivoData);
       // setTiposCita(tipoData);
@@ -150,53 +150,58 @@ export default function SupportListScreen() {
     }
   };
 
-  
+
 const handleSearch = async (query: string) => {
   if (!query.trim()) {
-    await loadSupports(1); // volver a modo paginado
+    await loadSupports(1); // volver al modo paginado
     return;
   }
 
   setLoading(true);
   try {
-    const filteredSupports = await searchSupports(query); // ✅ ya retorna solo supports.data
-    setSupports(filteredSupports); // ✅ correcto ahora
-    setPage(9999); // para evitar que cargue más por onEndReached
-  } catch (error) {
-    console.error('❌ Error al buscar:', error);
+    const filteredSupports = await searchSupports(query); // ✅ ya retorna Support[]
+    setSupports(filteredSupports);                       // ✅ se asigna directamente
+    setPage(9999); // desactiva la carga paginada en scroll
+  } catch (error: any) {
+    console.error('❌ Error al buscar:', error.message);
+    setSupports([]);
   } finally {
     setLoading(false);
   }
 };
 
+
+
+
   const renderSupport = ({ item }: { item: Support }) => (
-   
-   
+
+
 
     <Card style={styles.card} mode="outlined">
 
       <Card.Title
         title={
           item.details?.[0]
-            ? '📝 Ticket #' + String(item.details[0].id).padStart(4, '0')
-            : '📝 Ticket sin detalle'
+            ? `🧾 TR-${String(item.details[0].id).padStart(5, '0')} • ${item.details[0].ticket ?? 'TK-'}`
+            : '🧾 Ticket sin detalle'
         }
-        subtitle={`Estado global: ${item.status_global}`}
-        // right={() => (
-        //   <View style={{ flexDirection: 'row' }}>
-        //     <IconButton
-        //       icon="pencil"
-        //       onPress={async () => {
-        //         await loadSupportOptions();
-        //         setSupportToEdit(item);
-        //         setShowModal(true);
-        //       }}
-        //     />
-        //   </View>
-        // )}
-        
+      // subtitle={`Estado global: ${item.status_global}`}
+
+      // right={() => (
+      //   <View style={{ flexDirection: 'row' }}>
+      //     <IconButton
+      //       icon="pencil"
+      //       onPress={async () => {
+      //         await loadSupportOptions();
+      //         setSupportToEdit(item);
+      //         setShowModal(true);
+      //       }}
+      //     />
+      //   </View>
+      // )}
+
       />
-      
+
       <Card.Content>
         <SectionTitle title="Cliente" />
         {item.client?.Razon_Social && (
@@ -221,25 +226,32 @@ const handleSearch = async (query: string) => {
             <SectionTitle title="Detalles de atención" />
             {item.details?.map((detail, index) => (
               <View key={detail.id}>
-                <Text variant="labelSmall">🧾 Detalle #{index + 1}</Text>
-                <Text variant="labelSmall">🔹 Asunto: {detail.subject}</Text>
-                <Text variant="labelSmall">🧩 Tipo: {detail.type}</Text>
-                <Text variant="labelSmall">📍 Área: {detail.area?.descripcion}</Text>
                 <Text variant="labelSmall">🏗 Proyecto: {detail.project?.descripcion}</Text>
-                <Text variant="labelSmall">⚙ Estado: {detail.status}</Text>
-                <Text variant="labelSmall">🎯 Prioridad: {detail.priority}</Text>
                 <Text variant="labelSmall">📦 Manzana: {detail.Manzana}</Text>
-                <Text variant="labelSmall">📦 comment: {detail.comment}</Text>
-                <Text variant="labelSmall">📅 Reserva: {detail.reservation_time ?? '-'}</Text>
-                <Text variant="labelSmall">📅 Atendido: {detail.attended_at ?? '-'}</Text>
-                <Divider style={styles.divider} />
+                <Text variant="labelSmall">🔹 Solicitud: {detail.subject}</Text>
+                {/* <Text variant="labelSmall">🧩 Tipo: {detail.type}</Text> */}
+                <Text variant="labelSmall">📍 Área: {detail.area?.descripcion}</Text>
+                <Text variant="labelSmall">📍 Descripción: {detail.description}</Text>
+                {/* <Text variant="labelSmall">⚙ Estado: {detail.status}</Text> */}
+                <Text variant="labelSmall">🎯 Prioridad: {detail.priority}</Text>
+                <Text variant="labelSmall">
+                  🧭 Estado interno: {detail.internal_state?.description ?? 'No asignado'}
+                </Text>
+                <Text variant="labelSmall">
+                  🌐 Estado ATC: {detail.external_state?.description ?? 'No asignado'}
+                </Text>
+
+
+                {/* <Text variant="labelSmall">📅 Reserva: {detail.reservation_time ?? '-'}</Text>
+                <Text variant="labelSmall">📅 Atendido: {detail.attended_at ?? '-'}</Text> */}
+
               </View>
             ))}
           </>
         )}
       </Card.Content>
     </Card>
-    
+
   );
 
   function SectionTitle({ title }: { title: string }) {
@@ -256,22 +268,35 @@ const handleSearch = async (query: string) => {
             <ActivityIndicator animating={true} size="large" color={colors.primary} />
           ) : (
             <>
-             <SupportSearchBar onSearch={handleSearch} />
-               <FlatList
-              data={supports}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={renderSupport}
-              contentContainerStyle={{ paddingBottom: 150 }}
-              onEndReached={() => loadSupports(page)}
-              onEndReachedThreshold={0.3}
-              ListFooterComponent={
-                loadingMore ? <ActivityIndicator size="small" color={colors.primary} /> : null
-              }
-              
-            />
+             <SupportSearchBar
+  onSearch={handleSearch}
+  onClear={() => {
+    loadSupports(1); // 👈 función que recarga el listado original
+    setPage(1); // si usas paginación manual
+  }}
+/>
+
+              <FlatList
+                data={supports}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderSupport}
+                contentContainerStyle={{ paddingBottom: 150 }}
+                onEndReached={() => loadSupports(page)}
+                onEndReachedThreshold={0.3}
+                ListFooterComponent={
+                  loadingMore ? <ActivityIndicator size="small" color={colors.primary} /> : null
+                }
+
+              />
+              {!loading && supports.length === 0 && (
+  <Text style={{ textAlign: 'center', marginTop: 20, color: '#888' }}>
+    🔍 No se encontraron resultados
+  </Text>
+)}
+
             </>
-          
-            
+
+
           )}
         </SafeAreaView>
 
@@ -312,7 +337,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 10,
+    padding: 0,
   },
   title: {
     fontSize: 22,
@@ -323,9 +348,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   sectionTitle: {
-    marginTop: 12,
+    marginTop: 0,
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 20,
     color: '#444',
   },
   divider: {
@@ -333,10 +358,10 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 20,
-    bottom: 30,
+    right: 10,
+    bottom: 50,
     backgroundColor: '#6200ee',
     zIndex: 9999,
-    elevation: 6,
+    elevation: 0,
   },
 });

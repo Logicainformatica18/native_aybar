@@ -105,7 +105,7 @@ export default function LoginScreen() {
           </View>
 
           <Text variant="titleLarge" style={{ marginVertical: 16, textAlign: 'center', fontWeight: 'bold' }}>
-            Iniciar Sesión
+           Sistema de Atención al Cliente
           </Text>
 
           <TextInput
